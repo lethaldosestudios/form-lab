@@ -1,5 +1,383 @@
 /* =========================================================================
-   FORM//LAB — CRT glass & effects
-   Placeholder during scaffold; curved glass, vignette, scanlines and screen
-   noise are built in the Visual Prototype / CRT phases (handoff §5).
+   FORM//LAB — CRT display
+   A thick convex-glass screen recessed into a dark bezel (handoff §5).
+   Effects stay subtle so the rendered object remains clear.
    ========================================================================= */
+
+.crt {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.crt[data-tint='green'] {
+  --crt-tint: var(--display-glow);
+  --crt-tint-dim: var(--display-glow-dim);
+}
+.crt[data-tint='blue'] {
+  --crt-tint: #9fd0ff;
+  --crt-tint-dim: rgba(159, 208, 255, 0.35);
+}
+.crt[data-tint='neutral'] {
+  --crt-tint: #e8eaee;
+  --crt-tint-dim: rgba(232, 234, 238, 0.28);
+}
+
+.crt__housing {
+  position: relative;
+  padding: clamp(14px, 2vw, 22px);
+  border-radius: 14px;
+  background: linear-gradient(180deg, #23262c 0%, #171a1f 30%, #0f1114 100%);
+  border: 1px solid #000;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    0 18px 44px rgba(0, 0, 0, 0.6);
+}
+
+.crt__screw {
+  position: absolute;
+}
+.crt__screw--tl {
+  top: 8px;
+  left: 8px;
+}
+.crt__screw--tr {
+  top: 8px;
+  right: 8px;
+}
+.crt__screw--bl {
+  bottom: 8px;
+  left: 8px;
+}
+.crt__screw--br {
+  bottom: 8px;
+  right: 8px;
+}
+
+.crt__bezel {
+  padding: clamp(10px, 1.6vw, 18px);
+  border-radius: 12px;
+  background: linear-gradient(180deg, #0a0c0e, #15181d);
+  box-shadow:
+    inset 0 4px 12px rgba(0, 0, 0, 0.9),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+}
+
+.crt__screen {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  border-radius: 20px / 26px;
+  overflow: hidden;
+  background:
+    radial-gradient(120% 120% at 50% 40%, #06110d 0%, #030806 45%, #010201 100%);
+  box-shadow:
+    inset 0 0 40px rgba(0, 0, 0, 0.9),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.9);
+  isolation: isolate;
+}
+
+.crt__content {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  padding: clamp(16px, 3vw, 34px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  color: var(--crt-tint, var(--display-glow));
+  font-family: var(--font-display);
+  text-shadow: 0 0 8px var(--crt-tint-dim, var(--display-glow-dim));
+}
+
+/* ---- Glass effects layer ---- */
+.crt__glass {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.crt__scanlines {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0) 0 2px,
+    rgba(0, 0, 0, 0.16) 2px 3px
+  );
+  opacity: 0.5;
+  mix-blend-mode: multiply;
+}
+
+.crt__vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(125% 125% at 50% 45%, transparent 52%, rgba(0, 0, 0, 0.72) 100%);
+}
+
+.crt__glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(80% 70% at 50% 42%, var(--crt-tint-dim, var(--display-glow-dim)), transparent 68%);
+  opacity: 0.55;
+}
+
+.crt__reflection {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    118deg,
+    rgba(255, 255, 255, 0.09) 0%,
+    rgba(255, 255, 255, 0.02) 16%,
+    transparent 34%,
+    transparent 100%
+  );
+}
+
+.crt__edge {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow:
+    inset 0 2px 3px rgba(255, 255, 255, 0.06),
+    inset 0 -3px 8px rgba(0, 0, 0, 0.8);
+}
+
+.crt__vents {
+  position: absolute;
+  right: 12px;
+  bottom: 10px;
+  transform: scaleY(0.5);
+  opacity: 0.5;
+}
+
+.crt__plate {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 6px;
+  font-family: var(--font-technical);
+  font-size: var(--text-2xs);
+  letter-spacing: 0.16em;
+}
+.crt__plate-label {
+  color: var(--label-technical);
+}
+.crt__plate-model {
+  color: var(--label-engraved);
+}
+
+/* ---- Screen content (state text) ---- */
+.crt-screen {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  height: 100%;
+  justify-content: center;
+}
+.crt-screen__brand {
+  margin: 0;
+  font-size: clamp(1.4rem, 4vw, 2.4rem);
+  letter-spacing: 0.16em;
+}
+.crt-screen__sys {
+  margin: -8px 0 0;
+  font-size: var(--text-xs);
+  letter-spacing: 0.2em;
+  opacity: 0.7;
+}
+.crt-screen__idle {
+  margin: 0;
+  font-size: clamp(0.85rem, 2vw, 1.15rem);
+  letter-spacing: 0.14em;
+  color: var(--crt-tint, var(--display-glow));
+  animation: crt-blink 2.4s steps(1, end) infinite;
+}
+.crt-screen__hint {
+  margin: 0;
+  font-size: var(--text-sm);
+  letter-spacing: 0.12em;
+  opacity: 0.72;
+}
+.crt-screen__status {
+  margin: 0;
+  font-size: var(--text-xs);
+  letter-spacing: 0.18em;
+  opacity: 0.85;
+}
+.crt-screen__ready {
+  color: var(--indicator-green);
+  text-shadow: 0 0 8px rgba(74, 222, 128, 0.5);
+}
+
+@keyframes crt-blink {
+  0%,
+  70% {
+    opacity: 1;
+  }
+  71%,
+  100% {
+    opacity: 0.35;
+  }
+}
+
+/* ---- State text primitives ---- */
+.crt-screen__head {
+  margin: 0;
+  font-size: clamp(0.95rem, 2.2vw, 1.35rem);
+  letter-spacing: 0.16em;
+}
+.crt-screen__head--fault {
+  color: var(--indicator-red);
+  text-shadow: 0 0 10px rgba(240, 80, 60, 0.6);
+}
+.crt-screen__line {
+  margin: 0;
+  font-size: var(--text-sm);
+  letter-spacing: 0.14em;
+  opacity: 0.82;
+}
+
+/* ---- Parameter readout ---- */
+.crt-readout {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px 18px;
+  max-width: 360px;
+}
+.crt-readout__item {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: var(--text-xs);
+  letter-spacing: 0.12em;
+  border-bottom: 1px dotted rgba(127, 227, 196, 0.22);
+  padding-bottom: 2px;
+}
+.crt-readout dt {
+  opacity: 0.65;
+}
+.crt-readout dd {
+  margin: 0;
+}
+
+/* ---- Fabrication sequence ---- */
+.crt-sequence {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.crt-sequence__step {
+  font-size: var(--text-sm);
+  letter-spacing: 0.16em;
+  opacity: 0.5;
+  padding-left: 18px;
+  position: relative;
+}
+.crt-sequence__step::before {
+  content: '▸';
+  position: absolute;
+  left: 0;
+  opacity: 0.6;
+}
+.crt-screen--busy .crt-sequence__step {
+  animation: crt-step 2s ease-in-out infinite;
+}
+.crt-screen--busy .crt-sequence__step:nth-child(2) {
+  animation-delay: 0.25s;
+}
+.crt-screen--busy .crt-sequence__step:nth-child(3) {
+  animation-delay: 0.5s;
+}
+.crt-screen--busy .crt-sequence__step:nth-child(4) {
+  animation-delay: 0.75s;
+}
+@keyframes crt-step {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  45% {
+    opacity: 1;
+  }
+}
+
+/* ---- Rendered object layer ---- */
+.crt-screen--object {
+  position: absolute;
+  inset: calc(-1 * clamp(16px, 3vw, 34px));
+  padding: 0;
+  display: block;
+}
+.crt-screen__object {
+  position: absolute;
+  inset: 0;
+}
+.crt-renderer {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+.crt-screen__object-placeholder {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at 50% 45%, rgba(127, 227, 196, 0.12), transparent 70%);
+}
+.crt-screen__overlay {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 16px clamp(16px, 3vw, 34px) clamp(12px, 2vw, 20px);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.82), rgba(0, 0, 0, 0));
+  pointer-events: none;
+}
+.crt-screen__overlay .crt-readout {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  max-width: none;
+}
+
+/* ---- One-shot materialize reveal (handoff §16) ---- */
+.crt-reveal {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, transparent 0%, rgba(127, 227, 196, 0.3) 47%, transparent 53%),
+    repeating-linear-gradient(180deg, rgba(0, 0, 0, 0.32) 0 2px, transparent 2px 5px);
+  mix-blend-mode: screen;
+  animation: crt-reveal 900ms cubic-bezier(0.2, 0.8, 0.2, 1) 1 both;
+}
+@keyframes crt-reveal {
+  0% {
+    opacity: 1;
+    transform: translateY(-14%);
+    filter: blur(1px);
+  }
+  55% {
+    opacity: 0.55;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .crt-reveal {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .crt-screen__idle {
+    animation: none;
+  }
+}

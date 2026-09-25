@@ -23,4 +23,34 @@ export default tseslint.config(
       '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
     },
   },
+  {
+    // Architecture boundary (engineering spec §4): the generation engine must
+    // stay rendering-agnostic. Only the renderer may import Three.js.
+    files: ['src/engine/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            {
+              name: 'three',
+              message: 'The engine must stay Three-free — only the renderer may import three (§4).',
+            },
+          ],
+          patterns: ['three/*', '@react-three/*'],
+        },
+      ],
+    },
+  },
+  {
+    // Architecture boundary (engineering spec §4): controls never reach into
+    // the generation engine.
+    files: ['src/components/controls/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        { patterns: ['**/engine/*', '**/engine/**'] },
+      ],
+    },
+  },
 )

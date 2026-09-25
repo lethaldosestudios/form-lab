@@ -4,9 +4,14 @@ import { describe, expect, it } from 'vitest'
 import { App } from './App'
 
 describe('App', () => {
-  it('renders the FORM//LAB identity', () => {
+  it('renders the FORM//LAB machine identity', () => {
     render(<App />)
-    expect(screen.getByRole('heading', { name: /form\/\/lab/i })).toBeInTheDocument()
-    expect(screen.getByText(/MODEL IM-01/i)).toBeInTheDocument()
+    expect(screen.getAllByText(/FORM\/\/LAB/).length).toBeGreaterThan(0)
+    expect(screen.getAllByText(/INFLATION & MATERIALIZATION UNIT/i).length).toBeGreaterThan(0)
+  })
+
+  it('shows the idle dispenser as offline', () => {
+    render(<App />)
+    expect(screen.getByText(/DISPENSER OFFLINE/i)).toBeInTheDocument()
   })
 })
