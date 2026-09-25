@@ -1,4 +1,12 @@
-import { lazy, Suspense, useCallback, useEffect, useMemo, useRef } from 'react'
+import {
+  lazy,
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  type CSSProperties,
+} from 'react'
 
 import { PushButton } from '../controls/PushButton'
 import { ToggleSwitch } from '../controls/ToggleSwitch'
@@ -11,6 +19,7 @@ import { MachineChassis } from './MachineChassis'
 import { MachineHeader } from './MachineHeader'
 import { MachineLabel } from './MachineLabel'
 import { Cavity } from './Cavity'
+import { FabricationChamber } from './FabricationChamber'
 import { StatusLights } from './StatusLights'
 import { INFLATION_CONTROLS } from '../../data/machineConfig'
 import { extractContourFromImage } from '../../engine/silhouette'
@@ -159,7 +168,7 @@ export function FormLabMachine() {
 
   return (
     <MachineChassis>
-      <div className="machine">
+      <div className="machine" style={{ '--accent-material': params.color } as CSSProperties}>
         <MachineHeader />
 
         <div className="machine__deck">
@@ -249,6 +258,8 @@ export function FormLabMachine() {
         <MachineLabel className="machine__scroll-hint" tone="technical">
           ↓ FABRICATION &amp; DISPENSER
         </MachineLabel>
+
+        <FabricationChamber status={machine.status} params={params} />
 
         <div ref={dispenserRef}>
           <Dispenser

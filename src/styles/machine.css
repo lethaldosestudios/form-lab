@@ -1388,3 +1388,242 @@
     display: none;
   }
 }
+
+/* ---------- Fabrication chamber (plan §7) ----------
+   The machine's active work area: a recessed chamber with structural detail
+   and a live readout driven by existing state. Subdued at rest, active during
+   MATERIALIZING. */
+.chamber {
+  position: relative;
+  border-radius: 12px;
+  padding: 18px 20px 24px;
+  background: linear-gradient(180deg, #0a0c0e 0%, #0c0e11 58%, #08090b 100%);
+  box-shadow:
+    inset 0 3px 10px rgba(0, 0, 0, 0.92),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.7),
+    0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.chamber__header {
+  margin-bottom: 14px;
+}
+
+.chamber__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(210px, 0.4fr);
+  gap: 22px;
+  align-items: stretch;
+}
+
+.chamber__window {
+  position: relative;
+  min-height: 156px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: linear-gradient(180deg, #050708, #0a0d10);
+  box-shadow:
+    inset 0 4px 14px rgba(0, 0, 0, 0.95),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+}
+
+.chamber__rib {
+  position: absolute;
+  top: 12%;
+  bottom: 14%;
+  width: 10px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #15181d, #0b0d10);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.6);
+}
+.chamber__rib:nth-child(1) {
+  left: 11%;
+}
+.chamber__rib:nth-child(2) {
+  left: 46%;
+}
+.chamber__rib:nth-child(3) {
+  right: 11%;
+}
+
+.chamber__tube {
+  position: absolute;
+  left: 18%;
+  right: 18%;
+  top: 46%;
+  height: 8px;
+  border-radius: 6px;
+  background: linear-gradient(180deg, #1c2b27, #0b1411);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 2px 6px rgba(0, 0, 0, 0.7);
+}
+
+.chamber__strip {
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  bottom: 12%;
+  height: 6px;
+  border-radius: 4px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--accent-material) 65%, transparent),
+    transparent
+  );
+  opacity: 0.3;
+  transition:
+    opacity var(--dur-med),
+    box-shadow var(--dur-med);
+}
+.chamber[data-active] .chamber__strip {
+  opacity: 1;
+  box-shadow: 0 0 18px var(--accent-material);
+  animation: chamber-run 1.1s linear infinite;
+}
+.chamber[data-complete] .chamber__strip {
+  opacity: 0.75;
+}
+@keyframes chamber-run {
+  0%,
+  100% {
+    filter: brightness(0.75);
+  }
+  50% {
+    filter: brightness(1.7);
+  }
+}
+
+.chamber__glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(70% 60% at 50% 82%, var(--accent-material-dim), transparent 70%);
+  opacity: 0;
+  transition: opacity var(--dur-slow);
+}
+.chamber[data-active] .chamber__glow {
+  opacity: 1;
+}
+
+.chamber__readout {
+  margin: 0;
+  display: grid;
+  align-content: center;
+  gap: 9px;
+}
+.chamber__item {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-family: var(--font-technical);
+  font-size: var(--text-xs);
+  letter-spacing: 0.1em;
+  color: var(--label-muted);
+  border-bottom: 1px dotted rgba(255, 255, 255, 0.08);
+  padding-bottom: 4px;
+}
+.chamber__item dt {
+  color: var(--label-engraved);
+}
+.chamber__item dd {
+  margin: 0;
+  color: var(--label-primary);
+}
+.chamber[data-active] .chamber__item dd,
+.chamber[data-complete] .chamber__item dd {
+  color: var(--accent-material);
+}
+
+.chamber__vents {
+  position: absolute;
+  right: 16px;
+  top: 18px;
+  transform: scaleY(0.5);
+  opacity: 0.4;
+}
+
+/* ---------- Dispenser chamber — vending mechanism (plan §8) ---------- */
+.retrieval {
+  position: relative;
+  width: min(560px, 100%);
+  padding: 16px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #0f1215, #090b0e);
+  box-shadow:
+    inset 0 3px 10px rgba(0, 0, 0, 0.9),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.8),
+    0 1px 0 rgba(255, 255, 255, 0.05);
+}
+/* Rubber gasket ring seated inside the frame. */
+.retrieval::after {
+  content: '';
+  position: absolute;
+  inset: 9px;
+  border-radius: 9px;
+  box-shadow:
+    inset 0 0 0 3px rgba(9, 11, 13, 0.92),
+    inset 0 0 0 4px rgba(255, 255, 255, 0.045);
+  pointer-events: none;
+}
+
+.retrieval__flap {
+  height: 16px;
+  margin: 0 26px -6px;
+  border-radius: 5px 5px 0 0;
+  background: linear-gradient(180deg, #252a30, #12151a);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 2px 6px rgba(0, 0, 0, 0.7);
+}
+.retrieval[data-primed] .retrieval__flap {
+  background: linear-gradient(180deg, #2c3a33, #131d18);
+}
+
+.retrieval__tray {
+  position: relative;
+  aspect-ratio: 3 / 2;
+  border-radius: 8px;
+  overflow: hidden;
+  background:
+    radial-gradient(120% 80% at 50% 28%, rgba(255, 255, 255, 0.045), transparent 58%),
+    radial-gradient(circle at 50% 46%, #0d1015 0%, #04050680 78%);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.05),
+    inset 0 10px 30px rgba(0, 0, 0, 0.9);
+  display: grid;
+  place-items: center;
+}
+/* Glass window over the chamber. */
+.retrieval__tray::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    150deg,
+    rgba(255, 255, 255, 0.075) 0%,
+    transparent 34%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+
+/* ---------- Material colour as a functional accent (plan §9) ---------- */
+.material-selector__loaded-code {
+  color: var(--accent-material);
+  text-shadow: 0 0 8px var(--accent-material-soft);
+}
+.cartridge[data-selected] {
+  box-shadow:
+    inset 0 0 0 1px var(--accent-material-soft),
+    0 0 12px var(--accent-material-dim);
+}
+
+@media (max-width: 760px) {
+  .chamber__body {
+    grid-template-columns: 1fr;
+  }
+  .chamber__readout {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    display: grid;
+  }
+}
