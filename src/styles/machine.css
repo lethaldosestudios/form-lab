@@ -1,0 +1,32 @@
+/* =========================================================================
+   FORM//LAB — Machine chrome
+   Placeholder during scaffold; the full industrial shell (chassis, seams,
+   vents, screws, labels) is built in the Visual Prototype phase.
+   ========================================================================= */
+
+.app-shell {
+  min-height: 100vh;
+  display: grid;
+  place-content: center;
+  gap: var(--space-2);
+  text-align: center;
+  background: radial-gradient(circle at 50% 20%, #16181d, #0a0b0d 70%);
+  color: var(--label-primary);
+  font-family: var(--font-machine);
+}
+
+.app-shell__wordmark {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  letter-spacing: var(--tracking-label);
+  color: var(--label-primary);
+}
+
+.app-shell__sub {
+  margin: 0;
+  font-family: var(--font-technical);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-label);
+  color: var(--label-technical);
+}

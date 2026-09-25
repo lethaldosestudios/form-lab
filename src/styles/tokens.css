@@ -1,0 +1,97 @@
+/* =========================================================================
+   FORM//LAB — Design Tokens
+   Single source of truth for the machine's visual system (handoff §22).
+   Palette, materials, indicator semantics, spacing, type scale.
+   ========================================================================= */
+
+:root {
+  /* ---- Chassis (#22) ---- */
+  --chassis-black: #0a0b0d;
+  --chassis-charcoal: #14161a;
+  --chassis-graphite: #1d2026;
+  --chassis-graphite-hi: #262a32;
+
+  /* ---- Hardware (#22) ---- */
+  --hardware-aluminium: #b8bcc2;
+  --hardware-aluminium-lo: #8b9098;
+  --hardware-gunmetal: #3a3f47;
+  --hardware-gunmetal-hi: #4c525c;
+  --hardware-darkchrome: #6b7079;
+  --hardware-plastic: #101214;
+
+  /* ---- Display (#22) ---- */
+  --display-glass: #05070a;
+  --display-deep: #020405;
+  --display-glow: #7fe3c4; /* very subtle CRT green/blue */
+  --display-glow-dim: rgba(127, 227, 196, 0.35);
+
+  /* ---- Labels (#22) ---- */
+  --label-primary: #e6e7e9; /* off-white */
+  --label-muted: #9aa0a8; /* muted gray */
+  --label-technical: #6f757e; /* technical gray */
+  --label-engraved: #555a62;
+
+  /* ---- Indicator semantics (#22) ---- */
+  --indicator-green: #4ade80; /* ready / success */
+  --indicator-amber: #f5a524; /* processing / warning */
+  --indicator-red: #f0503c; /* error */
+  --indicator-neutral: #cfe6ff; /* neutral system state (white/blue) */
+  --indicator-off: #1a1d22; /* dark glass bulb */
+
+  /* ---- Accent / focus ---- */
+  --focus-ring: #7fe3c4;
+  --accent-beam: #7fe3c4;
+
+  /* ---- Typography ---- */
+  --font-machine: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  --font-technical: 'IBM Plex Mono', 'SFMono-Regular', 'Menlo', 'Consolas', monospace;
+  --font-display: 'IBM Plex Mono', 'SFMono-Regular', 'Menlo', 'Consolas', monospace;
+
+  --text-2xs: 0.625rem;
+  --text-xs: 0.6875rem;
+  --text-sm: 0.8125rem;
+  --text-md: 0.9375rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.75rem;
+  --text-2xl: 2.5rem;
+
+  --tracking-label: 0.14em;
+  --tracking-tight: -0.01em;
+
+  /* ---- Spacing ---- */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+
+  /* ---- Radii ---- */
+  --radius-sm: 3px;
+  --radius-md: 6px;
+  --radius-lg: 12px;
+  --radius-pill: 999px;
+
+  /* ---- Elevation / depth ---- */
+  --screw-size: 9px;
+  --panel-bevel: 1px;
+  --shadow-recess-inset: inset 0 2px 6px rgba(0, 0, 0, 0.75);
+  --shadow-raised: 0 1px 0 rgba(255, 255, 255, 0.06), 0 2px 6px rgba(0, 0, 0, 0.6);
+  --shadow-deep: 0 24px 60px rgba(0, 0, 0, 0.6);
+
+  /* ---- Motion (overridden by reduced-motion) ---- */
+  --ease-mechanical: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --dur-fast: 120ms;
+  --dur-med: 240ms;
+  --dur-slow: 480ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 0ms;
+    --dur-med: 0ms;
+    --dur-slow: 0ms;
+  }
+}
