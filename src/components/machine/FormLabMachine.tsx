@@ -5,12 +5,12 @@ import { ToggleSwitch } from '../controls/ToggleSwitch'
 import { CRTDisplay } from '../crt/CRTDisplay'
 import { CRTState } from '../crt/CRTState'
 import { AnalogGauge } from './AnalogGauge'
-import { ControlPanel } from './ControlPanel'
+import { ControlPanel, InflationControls, SceneControls } from './ControlPanel'
 import { Dispenser, type DispenserMode } from './dispenser/Dispenser'
 import { MachineChassis } from './MachineChassis'
 import { MachineHeader } from './MachineHeader'
 import { MachineLabel } from './MachineLabel'
-import { Panel } from './Panel'
+import { Cavity } from './Cavity'
 import { StatusLights } from './StatusLights'
 import { INFLATION_CONTROLS } from '../../data/machineConfig'
 import { extractContourFromImage } from '../../engine/silhouette'
@@ -179,7 +179,7 @@ export function FormLabMachine() {
             </CRTDisplay>
 
             <div className="machine__materialize">
-              <Panel className="materialize" screws>
+              <Cavity className="materialize" screws>
                 <MachineLabel heading tone="primary" code="MW-05" as="h2">
                   MATERIALIZATION
                 </MachineLabel>
@@ -197,28 +197,30 @@ export function FormLabMachine() {
                     CLEAR FAULT
                   </PushButton>
                 )}
-              </Panel>
+              </Cavity>
             </div>
-          </div>
 
-          <aside className="machine__status">
-            <Panel className="status-panel" screws>
+            <Cavity className="status-panel" screws>
               <MachineLabel heading tone="primary" code="ST-06" as="h2">
                 SYSTEM STATUS
               </MachineLabel>
-              <StatusLights states={indicatorStates} />
-            </Panel>
+              <StatusLights states={indicatorStates} layout="row" />
+            </Cavity>
+          </div>
 
-            <Panel className="gauge-panel" screws>
+          <aside className="machine__status">
+            <Cavity className="gauge-panel" screws>
               <AnalogGauge
                 label={INFLATION_CONTROLS.puffiness.label}
                 low={INFLATION_CONTROLS.puffiness.low}
                 high={INFLATION_CONTROLS.puffiness.high}
                 value={params.puffiness}
               />
-            </Panel>
+            </Cavity>
 
-            <Panel className="process-panel" screws>
+            <InflationControls params={params} update={updateParam} />
+
+            <Cavity className="process-panel" screws>
               <MachineLabel heading tone="primary" code="PR-07" as="h2">
                 PROCESSING
               </MachineLabel>
@@ -238,7 +240,9 @@ export function FormLabMachine() {
               <PushButton variant="ghost" onClick={resetUnit}>
                 RESET UNIT
               </PushButton>
-            </Panel>
+            </Cavity>
+
+            <SceneControls params={params} update={updateParam} />
           </aside>
         </div>
 

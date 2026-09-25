@@ -6,21 +6,35 @@ const MIN_ANGLE = -135
 const MAX_ANGLE = 135
 const DRAG_RANGE_PX = 160
 
+/** Physical identity — the knob's function decides its form (plan §4). */
+export type KnobVariant = 'primary' | 'machined' | 'ribbed'
+
 interface RotaryKnobProps {
   label: string
   /** Normalized 0–1 value. */
   value: number
   onChange: (value: number) => void
-  size?: 'md' | 'lg'
+  variant?: KnobVariant
   disabled?: boolean
 }
 
 /**
- * A physical rotary knob (handoff §6). Drag vertically to change the value;
- * the dial rotates with mechanical ease. Keyboard-operable and exposed as a
- * slider for assistive tech (handoff §25).
+ * A physical rotary knob mounted THROUGH the panel (handoff §6, plan §4).
+ * Drag vertically to change the value; the dial rotates with mechanical ease.
+ * Keyboard-operable and exposed as a slider for assistive tech (handoff §25).
+ *
+ * Variants give each control a manufactured identity:
+ *  - `primary`  big chunky black plastic  → AIR PRESSURE
+ *  - `machined` smaller aluminium         → DEFORMATION
+ *  - `ribbed`   black ribbed / knurled    → SURFACE REFLECTION
  */
-export function RotaryKnob({ label, value, onChange, size = 'md', disabled = false }: RotaryKnobProps) {
+export function RotaryKnob({
+  label,
+  value,
+  onChange,
+  variant = 'primary',
+  disabled = false,
+}: RotaryKnobProps) {
   const drag = useRef<{ startY: number; startValue: number } | null>(null)
   const dialRef = useRef<HTMLDivElement>(null)
 
@@ -79,7 +93,7 @@ export function RotaryKnob({ label, value, onChange, size = 'md', disabled = fal
   const pct = Math.round(reading * 100)
 
   return (
-    <div className={`knob knob--${size}`} data-disabled={disabled || undefined}>
+    <div className={`knob knob--${variant}`} data-disabled={disabled || undefined}>
       <div
         ref={dialRef}
         className="knob__dial"
@@ -98,9 +112,14 @@ export function RotaryKnob({ label, value, onChange, size = 'md', disabled = fal
         onPointerCancel={handlePointerUp}
         onKeyDown={handleKeyDown}
       >
-        <span className="knob__ring" />
+        <span className="knob__mount" aria-hidden="true" />
+        <span className="knob__ticks" aria-hidden="true" />
         <span className="knob__body">
-          <span className="knob__indicator" />
+          <span className="knob__rim" aria-hidden="true" />
+          <span className="knob__cap" aria-hidden="true">
+            {variant === 'ribbed' && <span className="knob__ribs" />}
+            <span className="knob__indicator" />
+          </span>
         </span>
       </div>
       <span className="knob__value" aria-hidden="true">

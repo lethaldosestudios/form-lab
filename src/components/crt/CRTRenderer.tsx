@@ -68,7 +68,10 @@ function GeometryObject({ object, appearance }: { object: RenderedObject; appear
 
   if (!geometry) return null
   const radius = geometry.boundingSphere?.radius ?? 0.6
-  const scale = 1.35 / Math.max(radius, 1e-3)
+  // Frame the object so its bounding sphere fills ~70% of the visible height at
+  // the camera distance — previously it was scaled ~2.7x too large and cropped
+  // into a flat slab in the CRT.
+  const scale = 0.5 / Math.max(radius, 1e-3)
 
   return (
     <mesh geometry={geometry} scale={scale} castShadow receiveShadow>

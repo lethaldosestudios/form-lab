@@ -4,6 +4,8 @@ import type { IndicatorStates } from '../../state/indicators'
 interface StatusLightsProps {
   states: IndicatorStates
   className?: string
+  /** `stack` = vertical list; `row` = a horizontal lamp strip. */
+  layout?: 'stack' | 'row'
 }
 
 /**
@@ -11,9 +13,9 @@ interface StatusLightsProps {
  * (handoff §7 / §22), not decoration. Status is never conveyed by color
  * alone — each bulb has a text label and an aria state.
  */
-export function StatusLights({ states, className }: StatusLightsProps) {
+export function StatusLights({ states, className, layout = 'stack' }: StatusLightsProps) {
   return (
-    <ul className={['status-lights', className].filter(Boolean).join(' ')}>
+    <ul className={['status-lights', `status-lights--${layout}`, className].filter(Boolean).join(' ')}>
       {INDICATORS.map((indicator) => {
         const state = states[indicator.id]
         const lit = state !== 'off'

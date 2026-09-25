@@ -7,6 +7,10 @@ import './styles/tokens.css'
 import './styles/machine.css'
 import './styles/crt.css'
 
+if (import.meta.env.DEV) {
+  void import('./dev/devBridge').then((module) => module.installDevBridge())
+}
+
 const rootElement = document.getElementById('root')
 
 if (!rootElement) {

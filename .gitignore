@@ -12,6 +12,9 @@ build/
 # Test / coverage
 coverage/
 
+# Visual capture artifacts
+screenshots/
+
 # Editor / OS
 .vscode/*
 !.vscode/extensions.json

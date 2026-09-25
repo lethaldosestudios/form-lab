@@ -8,7 +8,7 @@
 .app {
   min-height: 100vh;
   padding: clamp(16px, 4vw, 56px) clamp(12px, 3vw, 40px);
-  background: radial-gradient(130% 90% at 50% -10%, #191c22 0%, #0c0d10 45%, #050607 100%);
+  background: radial-gradient(120% 82% at 50% -6%, #15171c 0%, #0a0b0e 44%, #030405 100%);
   color: var(--label-primary);
   font-family: var(--font-machine);
   -webkit-font-smoothing: antialiased;
@@ -22,12 +22,11 @@
   margin: 0 auto;
   padding: 12px;
   border-radius: 20px;
-  background: linear-gradient(180deg, #1f232b 0%, #15181d 16%, #0f1114 62%, #090a0c 100%);
-  border: 1px solid #000;
+  background: var(--mat-chassis-bg);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.06),
-    inset 0 -3px 6px rgba(0, 0, 0, 0.85),
-    0 30px 80px rgba(0, 0, 0, 0.65);
+    var(--mat-chassis-shadow),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.9),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07);
 }
 
 .chassis__crown {
@@ -46,13 +45,25 @@
 }
 
 .chassis__shell {
+  position: relative;
   border-radius: 14px;
-  background: linear-gradient(180deg, #171a1f 0%, #121419 40%, #0d0f12 100%);
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  background: linear-gradient(180deg, #121418 0%, #0e1013 46%, #0a0b0d 100%);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.04),
-    inset 0 0 0 1px rgba(0, 0, 0, 0.6);
+    inset 0 2px 7px rgba(0, 0, 0, 0.9),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.03),
+    0 1px 0 rgba(255, 255, 255, 0.04);
   padding: clamp(14px, 2.2vw, 26px);
+}
+/* Fine painted-metal micro-texture over the whole machine body. */
+.chassis__shell::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background-image: var(--mat-noise);
+  opacity: var(--mat-noise-opacity);
+  mix-blend-mode: overlay;
+  pointer-events: none;
 }
 
 .chassis__base {
@@ -158,7 +169,7 @@
 
 .machine__deck {
   display: grid;
-  grid-template-columns: minmax(300px, 1fr) minmax(360px, 1.45fr) minmax(210px, 0.72fr);
+  grid-template-columns: minmax(280px, 1fr) minmax(420px, 1.5fr) minmax(240px, 0.86fr);
   gap: clamp(12px, 1.6vw, 20px);
   align-items: start;
 }
@@ -182,44 +193,78 @@
   letter-spacing: 0.3em;
 }
 
-/* ---------- Panels ---------- */
-.panel {
+/* ---------- Depth hierarchy: L1 cavity / L2 sub-panel ----------
+   Depth is communicated by inset shadows and beveled lips, never by outlines.
+   L1 = material removed from the chassis; L2 = a plate bolted into that cavity. */
+
+.cavity {
   position: relative;
-  border-radius: 8px;
-  border: 1px solid #000;
-  padding: 14px;
-}
-
-.panel--recessed {
-  background: linear-gradient(180deg, #15181d, #101216);
+  border-radius: 10px;
+  padding: 16px;
+  background: linear-gradient(180deg, #0c0e11 0%, #090b0d 58%, #0b0d0f 100%);
   box-shadow:
-    inset 0 2px 5px rgba(0, 0, 0, 0.7),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.03);
+    inset 0 3px 9px rgba(0, 0, 0, 0.92),
+    inset 0 1px 0 rgba(0, 0, 0, 0.9),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.05),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.55),
+    0 1px 0 rgba(255, 255, 255, 0.055);
 }
 
-.panel--raised {
-  background: linear-gradient(180deg, #1e2229, #14171b);
-  box-shadow: var(--shadow-raised);
+.cavity__floor {
+  position: relative;
 }
 
-.panel__screw {
+.cavity__screw {
   position: absolute;
+  z-index: 2;
+  opacity: 0.85;
 }
-.panel__screw--tl {
-  top: 6px;
-  left: 6px;
+.cavity__screw--tl {
+  top: 7px;
+  left: 7px;
 }
-.panel__screw--tr {
-  top: 6px;
-  right: 6px;
+.cavity__screw--tr {
+  top: 7px;
+  right: 7px;
 }
-.panel__screw--bl {
-  bottom: 6px;
-  left: 6px;
+.cavity__screw--bl {
+  bottom: 7px;
+  left: 7px;
 }
-.panel__screw--br {
-  bottom: 6px;
-  right: 6px;
+.cavity__screw--br {
+  bottom: 7px;
+  right: 7px;
+}
+
+.sub-panel {
+  position: relative;
+  border-radius: 7px;
+  padding: 14px;
+  background: var(--mat-panel-bg);
+  box-shadow:
+    var(--mat-panel-shadow),
+    0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.sub-panel__screw {
+  position: absolute;
+  z-index: 2;
+}
+.sub-panel__screw--tl {
+  top: 5px;
+  left: 5px;
+}
+.sub-panel__screw--tr {
+  top: 5px;
+  right: 5px;
+}
+.sub-panel__screw--bl {
+  bottom: 5px;
+  left: 5px;
+}
+.sub-panel__screw--br {
+  bottom: 5px;
+  right: 5px;
 }
 
 /* ---------- Machined details ---------- */
@@ -307,9 +352,12 @@
   flex-direction: column;
   gap: 16px;
 }
-.knob-row {
+.knob-group {
   display: flex;
-  gap: clamp(10px, 1.4vw, 20px);
+  justify-content: center;
+  gap: 16px;
+}
+.knob-group--pair {
   justify-content: space-around;
 }
 .toggle-stack {
@@ -318,17 +366,28 @@
   gap: 10px;
 }
 
-/* ---------- Rotary knob ---------- */
+/* ---------- Rotary knob — mounted through the plate (plan §4) ---------- */
 .knob {
+  --knob-size: 84px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
 }
+.knob--primary {
+  --knob-size: 96px;
+}
+.knob--machined {
+  --knob-size: 74px;
+}
+.knob--ribbed {
+  --knob-size: 84px;
+}
+
 .knob__dial {
   position: relative;
-  width: 62px;
-  height: 62px;
+  width: var(--knob-size);
+  height: var(--knob-size);
   border-radius: 50%;
   cursor: ns-resize;
   touch-action: none;
@@ -337,45 +396,107 @@
 .knob__dial:focus-visible {
   box-shadow: 0 0 0 3px var(--focus-ring);
 }
-.knob__ring {
+
+/* Collar recessed into the plate — the knob is bolted through it. */
+.knob__mount {
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 44% 32%, #1a1e24 0%, #0b0d10 60%, #050607 100%);
+  box-shadow:
+    inset 0 2px 5px rgba(0, 0, 0, 0.95),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.05),
+    0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* Scale ticks on the collar. */
+.knob__ticks {
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  background: repeating-conic-gradient(
+    from -135deg,
+    rgba(255, 255, 255, 0.3) 0deg 0.7deg,
+    transparent 0.7deg 27deg
+  );
+  -webkit-mask: radial-gradient(circle, transparent 0 70%, #000 71% 100%);
+  mask: radial-gradient(circle, transparent 0 70%, #000 71% 100%);
+  pointer-events: none;
+}
+
+/* Rotating assembly. */
+.knob__body {
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  background: conic-gradient(from 210deg, #2a2e35, #1a1d22 60%, #2a2e35);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
-}
-.knob__body {
-  position: absolute;
-  inset: 7px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 36% 28%, #3a4048 0%, #20242a 55%, #101216 100%);
-  box-shadow:
-    inset 0 1px 1px rgba(255, 255, 255, 0.16),
-    inset 0 -2px 4px rgba(0, 0, 0, 0.7),
-    0 3px 8px rgba(0, 0, 0, 0.6);
   transform: rotate(var(--knob-angle, 0deg));
   transition: transform var(--dur-fast) var(--ease-mechanical);
 }
+.knob__rim {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: conic-gradient(from 200deg, #343a42, #1c2026 40%, #3c424b 62%, #191d22 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 4px 10px rgba(0, 0, 0, 0.7);
+}
+.knob__cap {
+  position: absolute;
+  inset: 14%;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--mat-plastic-bg);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.12),
+    inset 0 -3px 7px rgba(0, 0, 0, 0.85),
+    0 3px 7px rgba(0, 0, 0, 0.6);
+}
 .knob__indicator {
   position: absolute;
-  top: 5px;
+  top: 7%;
   left: 50%;
   width: 3px;
-  height: 15px;
+  height: 26%;
   border-radius: 2px;
   background: var(--display-glow);
   transform: translateX(-50%);
-  box-shadow: 0 0 6px var(--display-glow-dim);
+  box-shadow: 0 0 7px var(--display-glow-dim);
 }
+
+/* Machined aluminium cap (DEFORMATION). */
+.knob--machined .knob__cap {
+  background: var(--mat-metal-bg);
+  box-shadow: var(--mat-metal-shadow);
+}
+.knob--machined .knob__cap::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--mat-metal-sheen);
+}
+.knob--machined .knob__indicator {
+  background: #1b1e23;
+  box-shadow: none;
+}
+
+/* Knurled ribs (SURFACE REFLECTION). */
+.knob__ribs {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: repeating-conic-gradient(
+    from 0deg,
+    rgba(0, 0, 0, 0.55) 0deg 2deg,
+    rgba(255, 255, 255, 0.05) 2deg 4deg
+  );
+}
+
 .knob__value {
   font-family: var(--font-technical);
   font-size: var(--text-2xs);
   letter-spacing: 0.1em;
   color: var(--label-muted);
-}
-.knob--lg .knob__dial {
-  width: 76px;
-  height: 76px;
 }
 
 /* ---------- Toggle switch ---------- */
@@ -619,10 +740,20 @@
 }
 
 .push-button--secondary .push-button__cap {
-  background: linear-gradient(180deg, #2a2f36, #171a1f);
-  color: var(--label-muted);
-  box-shadow: var(--shadow-raised);
+  position: relative;
+  overflow: hidden;
+  background: var(--mat-metal-bg);
+  color: #14171b;
+  box-shadow: var(--mat-metal-shadow);
   border: 1px solid #000;
+}
+.push-button--secondary .push-button__cap::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--mat-metal-sheen);
+  pointer-events: none;
 }
 .push-button--ghost .push-button__cap {
   background: transparent;
@@ -928,6 +1059,20 @@
   display: flex;
   flex-direction: column;
   gap: 9px;
+}
+
+/* Horizontal lamp strip (sits beneath the CRT). */
+.status-lights--row {
+  flex-direction: row;
+  justify-content: space-between;
+  gap: 6px;
+}
+.status-lights--row .status-lights__row {
+  flex-direction: column-reverse;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.5625rem;
+  letter-spacing: 0.05em;
 }
 .status-lights__row {
   display: flex;
