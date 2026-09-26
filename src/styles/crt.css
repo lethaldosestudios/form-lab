@@ -23,47 +23,112 @@
   --crt-tint-dim: rgba(232, 234, 238, 0.28);
 }
 
+/* The CRT is a module bolted into the machine, standing proud of the chassis.
+   Projection comes from the hood, the underhang, the stepped bezel and the cast
+   shadow — never a 3D transform, which would distort the WebGL canvas inside
+   .crt__screen. */
 .crt__housing {
   position: relative;
-  padding: clamp(14px, 2vw, 22px);
-  border-radius: 14px;
-  background: linear-gradient(180deg, #23262c 0%, #171a1f 30%, #0f1114 100%);
-  border: 1px solid #000;
+  padding: clamp(16px, 2.2vw, 26px) clamp(14px, 2vw, 22px);
+  border-radius: 16px 16px 12px 12px;
+  background: var(--mat-crt-housing-bg);
+  box-shadow: var(--mat-crt-housing-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  filter: drop-shadow(0 24px 24px rgba(0, 0, 0, 0.7));
+}
+
+/* Projecting hood — a lip across the top of the housing overhanging the bezel. */
+.crt__hood {
+  position: absolute;
+  top: 0;
+  left: 6%;
+  right: 6%;
+  height: clamp(10px, 1.4vw, 16px);
+  border-radius: 10px 10px 0 0;
+  background: linear-gradient(180deg, #262c34 0%, #161a20 70%, #0d1014 100%);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.07),
-    0 18px 44px rgba(0, 0, 0, 0.6);
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 6px 10px rgba(0, 0, 0, 0.65);
+  pointer-events: none;
+}
+
+/* Underhang — the module's underside lip; its shadow separates CRT from body. */
+.crt__underhang {
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  bottom: -6px;
+  height: 12px;
+  border-radius: 0 0 8px 8px;
+  background: linear-gradient(180deg, #0a0c0f, #040506);
+  box-shadow:
+    inset 0 2px 4px rgba(0, 0, 0, 0.9),
+    0 8px 14px rgba(0, 0, 0, 0.8);
+  pointer-events: none;
 }
 
 .crt__screw {
   position: absolute;
+  z-index: 3;
 }
 .crt__screw--tl {
-  top: 8px;
-  left: 8px;
+  top: 11px;
+  left: 11px;
 }
 .crt__screw--tr {
-  top: 8px;
-  right: 8px;
+  top: 11px;
+  right: 11px;
 }
 .crt__screw--bl {
-  bottom: 8px;
-  left: 8px;
+  bottom: 11px;
+  left: 11px;
 }
 .crt__screw--br {
-  bottom: 8px;
-  right: 8px;
+  bottom: 11px;
+  right: 11px;
 }
 
+/* Thick stepped bezel: a machined outer lip, then a dark inner well. */
 .crt__bezel {
-  padding: clamp(11px, 1.7vw, 20px);
-  border-radius: 14px;
-  /* Stepped, two-tone recess: a dark inner well inside a lighter machined lip. */
-  background: linear-gradient(180deg, #07090b 0%, #101317 52%, #171b21 100%);
+  position: relative;
+  padding: clamp(16px, 2.4vw, 28px);
+  border-radius: 16px;
+  background: linear-gradient(180deg, #1c2129 0%, #0c0f13 44%, #07090b 100%);
   box-shadow:
-    inset 0 3px 9px rgba(0, 0, 0, 0.95),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.07),
-    inset 0 0 0 1px rgba(0, 0, 0, 0.85),
-    0 1px 0 rgba(255, 255, 255, 0.05);
+    inset 0 2px 4px rgba(255, 255, 255, 0.08),
+    inset 0 -14px 26px rgba(0, 0, 0, 0.85),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.9),
+    0 2px 6px rgba(0, 0, 0, 0.7);
+}
+.crt__bezel::before {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  border-radius: 12px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.75);
+  pointer-events: none;
+}
+.crt__bezel-screw {
+  position: absolute;
+  z-index: 2;
+  opacity: 0.9;
+}
+.crt__bezel-screw--tl {
+  top: 9px;
+  left: 9px;
+}
+.crt__bezel-screw--tr {
+  top: 9px;
+  right: 9px;
+}
+.crt__bezel-screw--bl {
+  bottom: 9px;
+  left: 9px;
+}
+.crt__bezel-screw--br {
+  bottom: 9px;
+  right: 9px;
 }
 
 .crt__screen {

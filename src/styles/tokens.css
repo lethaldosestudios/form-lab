@@ -88,30 +88,44 @@
   --mat-noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
   --mat-noise-opacity: 0.045;
 
-  /* L0 — machine body: dark textured painted metal */
+  /* L0 — machine body: very dark charcoal painted metal */
   --mat-chassis-bg: linear-gradient(180deg, #23272e 0%, #16191e 16%, #101216 62%, #090a0c 100%);
   --mat-chassis-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.05), inset 0 -3px 8px rgba(0, 0, 0, 0.85),
     0 34px 90px rgba(0, 0, 0, 0.65);
 
-  /* L2 — control-panel plate: slightly lighter, low sheen */
-  --mat-panel-bg: linear-gradient(180deg, #1b1f25 0%, #13161b 68%, #0e1013 100%);
-  --mat-panel-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.05), inset 0 -1px 0 rgba(0, 0, 0, 0.7),
-    0 2px 4px rgba(0, 0, 0, 0.5);
+  /* L1 — recess cut into the body: almost black, deep */
+  --mat-recess-bg: linear-gradient(180deg, #0a0c0f 0%, #07080a 60%, #090b0d 100%);
+  --mat-recess-shadow:
+    inset 0 4px 12px rgba(0, 0, 0, 0.96), inset 0 1px 0 rgba(0, 0, 0, 0.95),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.05), inset 0 0 0 1px rgba(0, 0, 0, 0.6);
 
-  /* machined aluminium */
-  --mat-metal-bg: linear-gradient(180deg, #c6cad0 0%, #9aa0a8 40%, #6f757e 62%, #8b9098 100%);
+  /* L2 — control plate bolted into the recess. A DIFFERENT FINISH, not a lighter
+     card: only a modest value step above L0, so the separation comes from the
+     finish + fasteners + the recess shadow rather than a bright panel. */
+  --mat-plate-bg: linear-gradient(180deg, #232930 0%, #1b2128 58%, #151a20 100%);
+  --mat-plate-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.07), inset 0 -1px 0 rgba(0, 0, 0, 0.75),
+    0 2px 5px rgba(0, 0, 0, 0.55);
+
+  /* CRT housing — near-black smoked painted metal */
+  --mat-crt-housing-bg: linear-gradient(180deg, #181c22 0%, #0d1014 52%, #070809 100%);
+  --mat-crt-housing-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.07), inset 0 -2px 6px rgba(0, 0, 0, 0.9),
+    0 20px 38px rgba(0, 0, 0, 0.78), 0 4px 10px rgba(0, 0, 0, 0.8);
+
+  /* Dark machined metal hardware (deliberately NOT bright vintage aluminium) */
+  --mat-metal-bg: linear-gradient(180deg, #5d656f 0%, #3f464f 42%, #2a3037 64%, #454c55 100%);
   --mat-metal-sheen: linear-gradient(
     116deg,
-    rgba(255, 255, 255, 0.5) 0%,
-    rgba(255, 255, 255, 0.06) 38%,
-    rgba(255, 255, 255, 0.18) 72%,
+    rgba(255, 255, 255, 0.34) 0%,
+    rgba(255, 255, 255, 0.04) 38%,
+    rgba(255, 255, 255, 0.12) 72%,
     transparent 100%
   );
   --mat-metal-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.65), inset 0 -2px 3px rgba(0, 0, 0, 0.5),
-    0 2px 5px rgba(0, 0, 0, 0.6);
+    inset 0 1px 0 rgba(255, 255, 255, 0.42), inset 0 -2px 3px rgba(0, 0, 0, 0.62),
+    0 2px 5px rgba(0, 0, 0, 0.65);
 
   /* matte black plastic */
   --mat-plastic-bg: linear-gradient(180deg, #2c3037 0%, #1a1d22 58%, #111316 100%);

@@ -73,6 +73,11 @@ export function AnalogGauge({ label, low, high, value, className }: AnalogGaugeP
           </linearGradient>
         </defs>
 
+        {/* Round meter face + metal bezel ring: the gauge is mounted, not drawn on a panel. */}
+        <circle className="gauge__face" cx={CX} cy={CY} r={R + 14} />
+        <circle className="gauge__ring" cx={CX} cy={CY} r={R + 14} />
+        <circle className="gauge__ring-inner" cx={CX} cy={CY} r={R + 10} />
+
         <path className="gauge__track" d={arcPath(START, START + SWEEP, R)} />
         <path
           className="gauge__arc"

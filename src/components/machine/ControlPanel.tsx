@@ -8,7 +8,7 @@ import { SelectorSwitch } from '../controls/SelectorSwitch'
 import { ToggleSwitch } from '../controls/ToggleSwitch'
 import { ReferenceFilm } from '../reference/ReferenceFilm'
 import { MachineLabel } from './MachineLabel'
-import { Cavity } from './Cavity'
+import { Cavity, SubPanel } from './Cavity'
 import { INFLATION_CONTROLS, SECTIONS } from '../../data/machineConfig'
 import type { MaterialKey } from '../../data/materialPresets'
 import {
@@ -31,10 +31,13 @@ interface ControlPanelProps {
 function Section({ code, title, children }: { code: string; title: string; children: ReactNode }) {
   return (
     <Cavity className="control-section" screws>
-      <MachineLabel heading tone="primary" code={code} as="h2">
-        {title}
-      </MachineLabel>
-      <div className="control-section__body">{children}</div>
+      {/* L2 — a labelled plate bolted into the recess; the controls mount through it. */}
+      <SubPanel className="control-section__plate" screws>
+        <MachineLabel heading tone="primary" code={code} as="h2">
+          {title}
+        </MachineLabel>
+        <div className="control-section__body">{children}</div>
+      </SubPanel>
     </Cavity>
   )
 }

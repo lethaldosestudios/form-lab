@@ -201,13 +201,8 @@
   position: relative;
   border-radius: 10px;
   padding: 16px;
-  background: linear-gradient(180deg, #0c0e11 0%, #090b0d 58%, #0b0d0f 100%);
-  box-shadow:
-    inset 0 3px 9px rgba(0, 0, 0, 0.92),
-    inset 0 1px 0 rgba(0, 0, 0, 0.9),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.05),
-    inset 0 0 0 1px rgba(0, 0, 0, 0.55),
-    0 1px 0 rgba(255, 255, 255, 0.055);
+  background: var(--mat-recess-bg);
+  box-shadow: var(--mat-recess-shadow), 0 1px 0 rgba(255, 255, 255, 0.055);
 }
 
 .cavity__floor {
@@ -240,10 +235,8 @@
   position: relative;
   border-radius: 7px;
   padding: 14px;
-  background: var(--mat-panel-bg);
-  box-shadow:
-    var(--mat-panel-shadow),
-    0 1px 0 rgba(255, 255, 255, 0.05);
+  background: var(--mat-plate-bg);
+  box-shadow: var(--mat-plate-shadow), 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .sub-panel__screw {
@@ -345,7 +338,14 @@
 .control-panel {
   display: flex;
   flex-direction: column;
-  gap: clamp(12px, 1.6vw, 18px);
+  gap: clamp(14px, 1.8vw, 22px);
+}
+/* The cavity is just the cut-out; the plate inside carries the controls. */
+.control-section {
+  padding: 8px;
+}
+.control-section__plate {
+  padding: 14px 14px 16px;
 }
 .control-section__body {
   display: flex;
@@ -375,7 +375,7 @@
   gap: 12px;
 }
 .knob--primary {
-  --knob-size: 96px;
+  --knob-size: 122px;
 }
 .knob--machined {
   --knob-size: 74px;
@@ -422,6 +422,54 @@
   -webkit-mask: radial-gradient(circle, transparent 0 70%, #000 71% 100%);
   mask: radial-gradient(circle, transparent 0 70%, #000 71% 100%);
   pointer-events: none;
+}
+
+/* ---- Hero knob (AIR PRESSURE) — plan §P0.4 -------------------------------
+   Oversized, mounted through a machined collar, with an engraved numbered
+   scale in the plate behind it. The generic tick ring is replaced by the scale. */
+.knob--primary .knob__ticks {
+  display: none;
+}
+.knob--primary .knob__mount {
+  inset: -16px;
+  box-shadow:
+    inset 0 2px 5px rgba(0, 0, 0, 0.95),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.06),
+    0 0 0 3px #394049,
+    0 0 0 4px rgba(0, 0, 0, 0.9),
+    0 3px 10px rgba(0, 0, 0, 0.75);
+}
+.knob__scale {
+  position: absolute;
+  inset: -30px;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.knob__scale-mark {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+}
+.knob__scale-line {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 2px;
+  height: 8px;
+  margin-left: -1px;
+  border-radius: 1px;
+  background: rgba(255, 255, 255, 0.42);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.85);
+}
+.knob__scale-label {
+  position: absolute;
+  top: 9px;
+  left: 50%;
+  font-family: var(--font-technical);
+  font-size: 9px;
+  letter-spacing: 0.03em;
+  color: var(--label-technical);
+  transform: translateX(-50%) rotate(calc(-1 * var(--mark-angle, 0deg)));
 }
 
 /* Rotating assembly. */
@@ -1166,6 +1214,20 @@
   stroke: #05070a;
   stroke-width: 7;
   stroke-linecap: round;
+}
+/* Round meter face + machined bezel ring. */
+.gauge__face {
+  fill: url(#gauge-face);
+}
+.gauge__ring {
+  fill: none;
+  stroke: #3b434c;
+  stroke-width: 6;
+}
+.gauge__ring-inner {
+  fill: none;
+  stroke: rgba(0, 0, 0, 0.85);
+  stroke-width: 1.5;
 }
 .gauge__arc {
   fill: none;

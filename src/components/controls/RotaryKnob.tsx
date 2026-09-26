@@ -6,6 +6,12 @@ const MIN_ANGLE = -135
 const MAX_ANGLE = 135
 const DRAG_RANGE_PX = 160
 
+/** Engraved scale marks for the hero knob (plan §P0.4). */
+const SCALE_MARKS = [0, 25, 50, 75, 100].map((value) => ({
+  value,
+  angle: MIN_ANGLE + (value / 100) * (MAX_ANGLE - MIN_ANGLE),
+}))
+
 /** Physical identity — the knob's function decides its form (plan §4). */
 export type KnobVariant = 'primary' | 'machined' | 'ribbed'
 
@@ -114,6 +120,27 @@ export function RotaryKnob({
       >
         <span className="knob__mount" aria-hidden="true" />
         <span className="knob__ticks" aria-hidden="true" />
+
+        {variant === 'primary' && (
+          <span className="knob__scale" aria-hidden="true">
+            {SCALE_MARKS.map((mark) => (
+              <span
+                key={mark.value}
+                className="knob__scale-mark"
+                style={
+                  {
+                    transform: `rotate(${mark.angle}deg)`,
+                    '--mark-angle': `${mark.angle}deg`,
+                  } as CSSProperties
+                }
+              >
+                <span className="knob__scale-line" />
+                <span className="knob__scale-label">{mark.value}</span>
+              </span>
+            ))}
+          </span>
+        )}
+
         <span className="knob__body">
           <span className="knob__rim" aria-hidden="true" />
           <span className="knob__cap" aria-hidden="true">

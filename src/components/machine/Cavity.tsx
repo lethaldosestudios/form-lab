@@ -7,6 +7,10 @@ interface CavityProps {
   className?: string
   /** Fasteners set into the cavity rim. */
   screws?: boolean
+  /** Seat an L2 sub-assembly plate in the cavity (components mount through it). */
+  plate?: boolean
+  /** Fasteners on that plate, when `plate` is set. */
+  plateScrews?: boolean
   as?: 'section' | 'div' | 'article' | 'aside'
 }
 
@@ -16,8 +20,18 @@ interface CavityProps {
  * Depth comes from the inset rim shadow and a beveled lip, never from an
  * outline. This is the physical explanation for the surface: material has been
  * removed from the chassis to seat a control assembly.
+ *
+ * With `plate`, the cavity seats an L2 plate so the full stack reads
+ * chassis -> cavity -> plate -> component (plan §P0.2).
  */
-export function Cavity({ children, className, screws = false, as }: CavityProps) {
+export function Cavity({
+  children,
+  className,
+  screws = false,
+  plate = false,
+  plateScrews = true,
+  as,
+}: CavityProps) {
   const Tag = as ?? 'div'
   return (
     <Tag className={['cavity', className].filter(Boolean).join(' ')}>
@@ -29,7 +43,13 @@ export function Cavity({ children, className, screws = false, as }: CavityProps)
           <Screw className="cavity__screw cavity__screw--br" />
         </>
       )}
-      <div className="cavity__floor">{children}</div>
+      <div className="cavity__floor">
+        {plate ? (
+          <SubPanel screws={plateScrews}>{children}</SubPanel>
+        ) : (
+          children
+        )}
+      </div>
     </Tag>
   )
 }
