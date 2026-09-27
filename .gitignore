@@ -41,3 +41,10 @@ pnpm-debug.log*
 
 # Vite cache
 .vite/
+
+# Command Code tool state (sessions, learned taste, plans) — local only
+.commandcode/
+
+# Local planning notes — not part of the shipped source
+FORM-LAB-Development-Plan-Revision-Notes.md
+FORM-LAB-Development-Plan-Revision-Notes.odt
