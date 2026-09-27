@@ -16,7 +16,7 @@ make the user feel like they are operating a physical object?*
 
 ## Running it
 
-Requires **Node 24.21.0** (installed via NVM — see [Gotchas](#gotchas)).
+Requires **Node 24.21.0** — `nvm use` picks it up from `.nvmrc` (see [Gotchas](#gotchas)).
 
 | Command | What it does |
 | --- | --- |
@@ -83,6 +83,8 @@ Zustand · Motion · Vitest 5 · Playwright · ESLint 9 · Prettier.
   Don't implement a multi-file visual or feature change unplanned.
 - **Trunk-based:** commit straight to `main` and tag each finished version (`v1`, `v2`, `v3`, …).
   No pull requests.
+- **CI:** `.github/workflows/ci.yml` runs `lint` → `test` → `build` on every push to `main`, so the
+  same gate is enforced remotely as well as locally.
 - Commit messages are conventional-style (`feat:`, `fix:`, `chore:`) and end with:
 
   ```
