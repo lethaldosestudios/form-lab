@@ -113,6 +113,8 @@ export function MechanicalSlider({
         onPointerCancel={handlePointerUp}
         onKeyDown={handleKeyDown}
       >
+        {/* Engraved scale in the plate behind the rail (plan §P1.5). */}
+        <span className="slider__scale" aria-hidden="true" />
         <span className="slider__rail" />
         <span className="slider__fill" style={{ width: `${reading * 100}%` }} />
         <span className="slider__handle" style={{ left: `${reading * 100}%` }}>
