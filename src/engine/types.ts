@@ -22,6 +22,8 @@ export type LightingMode = 'soft' | 'directional' | 'dramatic'
 export interface GenerationParams {
   /** Closed 2D polyline normalised to 0–1 shape space. */
   silhouetteContour: Vec2[]
+  /** Interior cutouts (negative space) subtracted from the silhouette. */
+  holes?: Vec2[][]
   material: MaterialKey
   color: string
   transparency: Transparency

@@ -40,8 +40,10 @@ interface MachineStore {
 
   // --- Active silhouette geometry (reference, else the default sample) ---
   contour: Vec2[]
+  /** Interior cutouts of the reference (letter counters etc.), same shape space. */
+  holes: Vec2[][]
   shapeCode: string
-  setContour: (contour: Vec2[], shapeCode: string) => void
+  setContour: (contour: Vec2[], shapeCode: string, holes?: Vec2[][]) => void
 
   // --- Rendered object ---
   object: RenderedObject | null
@@ -106,6 +108,7 @@ export const useMachineStore = create<MachineStore>((set) => ({
       referenceUrl: null,
       referenceName: null,
       contour: DEFAULT_SILHOUETTE.contour,
+      holes: [],
       shapeCode: DEFAULT_SILHOUETTE.code,
       machine: machineReducer(state.machine, { type: 'REFERENCE_CLEARED' }),
       object: null,
@@ -118,6 +121,7 @@ export const useMachineStore = create<MachineStore>((set) => ({
       referenceUrl: null,
       referenceName: null,
       contour: DEFAULT_SILHOUETTE.contour,
+      holes: [],
       shapeCode: DEFAULT_SILHOUETTE.code,
       object: null,
       previewObject: null,
@@ -131,8 +135,9 @@ export const useMachineStore = create<MachineStore>((set) => ({
     })),
 
   contour: DEFAULT_SILHOUETTE.contour,
+  holes: [],
   shapeCode: DEFAULT_SILHOUETTE.code,
-  setContour: (contour, shapeCode) => set({ contour, shapeCode }),
+  setContour: (contour, shapeCode, holes = []) => set({ contour, holes, shapeCode }),
 
   object: null,
   setObject: (object) => set({ object }),

@@ -27,6 +27,7 @@ const EDITABLE: readonly MachineStatus[] = [
 export function useLivePreview() {
   const params = useMachineStore((s) => s.params)
   const contour = useMachineStore((s) => s.contour)
+  const holes = useMachineStore((s) => s.holes)
   const livePreview = useMachineStore((s) => s.livePreview)
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const token = useRef(0)
@@ -48,7 +49,9 @@ export function useLivePreview() {
       const id = ++token.current
       store.dispatch({ type: 'PREVIEW_START' })
       try {
-        const object = await previewEngine.generate(toGenerationParams(store.params, store.contour))
+        const object = await previewEngine.generate(
+          toGenerationParams(store.params, store.contour, store.holes),
+        )
         if (id !== token.current) return
         useMachineStore.getState().setPreviewObject(object)
       } catch {
@@ -62,5 +65,5 @@ export function useLivePreview() {
     return () => {
       if (timer.current) clearTimeout(timer.current)
     }
-  }, [params, contour, livePreview])
+  }, [params, contour, holes, livePreview])
 }

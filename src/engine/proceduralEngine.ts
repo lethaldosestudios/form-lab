@@ -72,9 +72,15 @@ function previewDataUrl(params: GenerationParams): string {
   const preset = MATERIAL_BY_ID[params.material]
   const light = shadeHex(params.color, 0.45)
   const dark = shadeHex(params.color, -0.4)
-  const points = params.silhouetteContour
-    .map((p: Vec2) => `${(p.x * 100).toFixed(1)},${(p.y * 100).toFixed(1)}`)
-    .join(' ')
+  // SVG y runs downward, shape space is y-up. Outlines are emitted as one path
+  // with even-odd fill so interior cutouts punch through the thumbnail too.
+  const loop = (points: Vec2[]) =>
+    points
+      .map(
+        (p, i) => `${i === 0 ? 'M' : 'L'}${(p.x * 100).toFixed(1)},${((1 - p.y) * 100).toFixed(1)}`,
+      )
+      .join(' ') + ' Z'
+  const path = [params.silhouetteContour, ...(params.holes ?? [])].map(loop).join(' ')
   const [r, g, b] = hexToRgb(params.color)
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="${preset.name} object preview">
   <defs>
@@ -84,7 +90,7 @@ function previewDataUrl(params: GenerationParams): string {
       <stop offset="100%" stop-color="${dark}"/>
     </radialGradient>
   </defs>
-  <polygon points="${points}" fill="url(#sheen)" stroke="rgba(${r},${g},${b},0.6)" stroke-width="0.8"/>
+  <path d="${path}" fill="url(#sheen)" fill-rule="evenodd" stroke="rgba(${r},${g},${b},0.6)" stroke-width="0.8"/>
 </svg>`
   return `data:image/svg+xml,${encodeURIComponent(svg)}`
 }
@@ -107,7 +113,7 @@ export function createProceduralEngine(options: ProceduralEngineOptions = {}): G
     async generate(params: GenerationParams): Promise<RenderedObject> {
       cancelled = false
 
-      const sdf = new SdfField(params.silhouetteContour, sdfRes)
+      const sdf = new SdfField(params.silhouetteContour, sdfRes, params.holes ?? [])
       const { implicit, zBound } = buildField(sdf, params)
 
       const mesh = extractSurface(

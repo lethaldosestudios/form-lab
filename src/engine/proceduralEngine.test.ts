@@ -78,6 +78,34 @@ describe('proceduralEngine', () => {
     expect(puffedZ).toBeGreaterThan(flatZ)
   })
 
+  it('carves interior cutouts into the form', async () => {
+    const circle = (r: number, n = 64) =>
+      Array.from({ length: n }, (_, i) => {
+        const a = (i / n) * Math.PI * 2
+        return { x: 0.5 + Math.cos(a) * r, y: 0.5 + Math.sin(a) * r }
+      })
+    const outer = circle(0.42)
+    const hole = circle(0.2)
+
+    const solid = await engine.generate({ ...baseParams, silhouetteContour: outer, holes: [] })
+    const cut = await engine.generate({ ...baseParams, silhouetteContour: outer, holes: [hole] })
+    if (solid.descriptor.kind !== 'geometry' || cut.descriptor.kind !== 'geometry') {
+      throw new Error('expected geometry')
+    }
+
+    const nearCentre = (positions: Float32Array) => {
+      let count = 0
+      for (let i = 0; i < positions.length; i += 3) {
+        if (Math.hypot(positions[i] - 0.5, positions[i + 1] - 0.5) < 0.08) count++
+      }
+      return count
+    }
+
+    // Without cutouts the disc is solid through the centre; with the hole it is a void.
+    expect(nearCentre(solid.descriptor.positions)).toBeGreaterThan(0)
+    expect(nearCentre(cut.descriptor.positions)).toBe(0)
+  })
+
   it('throws when superseded by cancel()', async () => {
     const cancelling = createProceduralEngine({ sdfRes: 32, counts: { x: 12, y: 12, z: 8 } })
     cancelling.cancel?.()

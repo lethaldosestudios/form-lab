@@ -1,17 +1,25 @@
 import type { Vec2 } from './types'
 
+export interface ExtractedSilhouette {
+  /** Outer boundary, unit square, y-up shape space. */
+  contour: Vec2[]
+  /** Interior negative-space boundaries (letter counters, e.g. the hole in an O). */
+  holes: Vec2[][]
+}
+
 /**
- * Extract a silhouette contour from an uploaded reference image.
+ * Extract a silhouette from an uploaded reference image.
  *
  * Rasterise → threshold to a binary mask → find the largest connected
- * component → trace its outer boundary (Moore-neighbour) → simplify → normalise
- * into the unit square. Returns `null` on any failure so callers can fall back
- * to a curated sample silhouette (engineering spec §2 #9).
+ * component → trace its outer boundary and any enclosed interior cutouts
+ * (Moore-neighbour) → simplify → normalise into the unit square. Returns `null`
+ * on any failure so callers can fall back to a curated sample silhouette
+ * (engineering spec §2 #9).
  */
-export async function extractContourFromImage(
+export async function extractSilhouetteFromImage(
   source: File | string,
   resolution = 140,
-): Promise<Vec2[] | null> {
+): Promise<ExtractedSilhouette | null> {
   try {
     const image = await loadImage(source)
     const raster = rasterize(image, resolution)
@@ -26,7 +34,14 @@ export async function extractContourFromImage(
     const simplified = simplify(subsample(boundary, 200), 1.2)
     if (simplified.length < 8) return null
 
-    return normalise(simplified)
+    // One shared frame keeps the cutouts registered to the outer boundary.
+    const frame = frameFor(simplified)
+    const holes = findHoles(raster.mask, raster.width, raster.height)
+      .map((points) => simplify(subsample(points, 200), 1))
+      .filter((points) => points.length >= 4)
+      .map((points) => fit(points, frame))
+
+    return { contour: fit(simplified, frame), holes }
   } catch {
     return null
   }
@@ -216,8 +231,16 @@ function simplify(points: Vec2[], epsilon: number): Vec2[] {
   return [points[0], points[points.length - 1]]
 }
 
+interface Frame {
+  minX: number
+  minY: number
+  scale: number
+  offX: number
+  offY: number
+}
+
 /** Fit the traced pixels into the unit square, preserving aspect and centring. */
-function normalise(points: Vec2[]): Vec2[] {
+function frameFor(points: Vec2[]): Frame {
   let minX = Infinity
   let minY = Infinity
   let maxX = -Infinity
@@ -231,10 +254,106 @@ function normalise(points: Vec2[]): Vec2[] {
   const spanX = Math.max(maxX - minX, 1)
   const spanY = Math.max(maxY - minY, 1)
   const scale = 0.88 / Math.max(spanX, spanY)
-  const offX = (1 - spanX * scale) / 2
-  const offY = (1 - spanY * scale) / 2
+  return {
+    minX,
+    minY,
+    scale,
+    offX: (1 - spanX * scale) / 2,
+    offY: (1 - spanY * scale) / 2,
+  }
+}
+
+function fit(points: Vec2[], frame: Frame): Vec2[] {
   return points.map((p) => ({
-    x: (p.x - minX) * scale + offX,
-    y: (p.y - minY) * scale + offY,
+    x: (p.x - frame.minX) * frame.scale + frame.offX,
+    // Image rows run top-down; shape space is y-up (matching the samples and
+    // the renderer), so invert to keep the reference the right way up in the CRT.
+    y: 1 - ((p.y - frame.minY) * frame.scale + frame.offY),
   }))
+}
+
+/**
+ * Trace the interior cutouts of the mask: background not reachable from the
+ * image border (i.e. enclosed by the silhouette). These become the object's
+ * holes, so a letter like "O" keeps its counter (handoff §6, INTERIOR CUTOUTS).
+ */
+function findHoles(mask: Uint8Array, width: number, height: number): Vec2[][] {
+  // Flood the exterior background inwards from every border pixel.
+  const exterior = new Uint8Array(mask.length)
+  const stack: number[] = []
+  const visit = (p: number) => {
+    if (mask[p] === 0 && !exterior[p]) {
+      exterior[p] = 1
+      stack.push(p)
+    }
+  }
+  for (let x = 0; x < width; x++) {
+    visit(x)
+    visit((height - 1) * width + x)
+  }
+  for (let y = 0; y < height; y++) {
+    visit(y * width)
+    visit(y * width + width - 1)
+  }
+  while (stack.length) {
+    const q = stack.pop() as number
+    const x = q % width
+    const y = (q / width) | 0
+    for (const [dx, dy] of [
+      [1, 0],
+      [-1, 0],
+      [0, 1],
+      [0, -1],
+    ] as const) {
+      const nx = x + dx
+      const ny = y + dy
+      if (nx < 0 || ny < 0 || nx >= width || ny >= height) continue
+      visit(ny * width + nx)
+    }
+  }
+
+  const enclosed = new Uint8Array(mask.length)
+  for (let p = 0; p < mask.length; p++) {
+    enclosed[p] = mask[p] === 0 && !exterior[p] ? 1 : 0
+  }
+
+  const minArea = Math.max(12, Math.round(width * height * 0.0008))
+  const seen = new Uint8Array(enclosed.length)
+  const holes: Vec2[][] = []
+
+  for (let p = 0; p < enclosed.length; p++) {
+    if (enclosed[p] !== 1 || seen[p]) continue
+
+    let area = 0
+    stack.length = 0
+    stack.push(p)
+    seen[p] = 1
+    while (stack.length) {
+      const q = stack.pop() as number
+      area++
+      const x = q % width
+      const y = (q / width) | 0
+      for (const [dx, dy] of [
+        [1, 0],
+        [-1, 0],
+        [0, 1],
+        [0, -1],
+      ] as const) {
+        const nx = x + dx
+        const ny = y + dy
+        if (nx < 0 || ny < 0 || nx >= width || ny >= height) continue
+        const nq = ny * width + nx
+        if (enclosed[nq] === 1 && !seen[nq]) {
+          seen[nq] = 1
+          stack.push(nq)
+        }
+      }
+    }
+
+    if (area < minArea) continue
+    const boundary = traceBoundary(enclosed, width, height, p)
+    if (boundary.length >= 8) holes.push(boundary)
+  }
+
+  return holes
 }

@@ -22,7 +22,7 @@ import { Cavity } from './Cavity'
 import { FabricationChamber } from './FabricationChamber'
 import { StatusLights } from './StatusLights'
 import { INFLATION_CONTROLS } from '../../data/machineConfig'
-import { extractContourFromImage } from '../../engine/silhouette'
+import { extractSilhouetteFromImage } from '../../engine/silhouette'
 import { appearanceForParams } from '../../state/appearance'
 import { indicatorStatesFor } from '../../state/indicators'
 import { canMaterializeNow } from '../../state/machineState'
@@ -77,8 +77,8 @@ export function FormLabMachine() {
       const url = URL.createObjectURL(file)
       objectUrlRef.current = url
       setReference(url, file.name.replace(/\.[^.]+$/, '').toUpperCase())
-      const contour = await extractContourFromImage(file)
-      if (contour) setContour(contour, 'REFERENCE')
+      const extracted = await extractSilhouetteFromImage(file)
+      if (extracted) setContour(extracted.contour, 'REFERENCE', extracted.holes)
     },
     [setContour, setReference],
   )

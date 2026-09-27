@@ -49,6 +49,8 @@ export function signedDistance(px: number, py: number, poly: readonly Vec2[]): n
 /**
  * A sampled signed-distance field over the unit square, with bilinear lookup.
  * Built once per reference and queried many times by the surface extractor.
+ * Interior `holes` are subtracted (CSG difference) so cutouts read as solid
+ * voids rather than hidden interior surface.
  */
 export class SdfField {
   readonly res: number
@@ -56,7 +58,7 @@ export class SdfField {
   /** Largest positive inset (i.e. deepest interior distance), for normalising. */
   readonly maxInset: number
 
-  constructor(poly: readonly Vec2[], res = 140) {
+  constructor(poly: readonly Vec2[], res = 140, holes: readonly (readonly Vec2[])[] = []) {
     this.res = res
     this.values = new Float32Array((res + 1) * (res + 1))
     let maxInset = 0
@@ -65,7 +67,8 @@ export class SdfField {
       for (let i = 0; i <= res; i++) {
         const x = i / res
         const y = j / res
-        const d = signedDistance(x, y, poly)
+        let d = signedDistance(x, y, poly)
+        for (const hole of holes) d = Math.max(d, -signedDistance(x, y, hole))
         this.values[j * (res + 1) + i] = d
         if (-d > maxInset) maxInset = -d
       }

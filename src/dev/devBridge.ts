@@ -43,9 +43,9 @@ export function installDevBridge(): void {
       useMachineStore.setState({ params: { ...params, ...partial } })
     },
     async makeObject(kind = 'full') {
-      const { params, contour } = useMachineStore.getState()
+      const { params, contour, holes } = useMachineStore.getState()
       const engine = kind === 'preview' ? previewEngine : proceduralEngine
-      const object = await engine.generate(toGenerationParams(params, contour))
+      const object = await engine.generate(toGenerationParams(params, contour, holes))
       useMachineStore.setState(kind === 'preview' ? { previewObject: object } : { object })
       return object.id
     },

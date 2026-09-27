@@ -7,9 +7,14 @@ import { useMachineStore } from './machineStore'
 import type { MachineParams } from './params'
 
 /** Translate UI parameters + the active contour into engine input. */
-export function toGenerationParams(params: MachineParams, contour: Vec2[]): GenerationParams {
+export function toGenerationParams(
+  params: MachineParams,
+  contour: Vec2[],
+  holes: Vec2[][] = [],
+): GenerationParams {
   return {
     silhouetteContour: contour,
+    holes: params.interiorCutouts ? holes : [],
     material: params.material,
     color: params.color,
     transparency: params.transparency,
@@ -46,7 +51,7 @@ export function useFabrication(engine: GenerationEngine = proceduralEngine) {
 
     running.current = true
     const started = now()
-    const params = toGenerationParams(store.params, store.contour)
+    const params = toGenerationParams(store.params, store.contour, store.holes)
 
     store.dispatch({ type: 'MATERIALIZE' })
     await wait(GEOMETRY_BEAT_MS)
