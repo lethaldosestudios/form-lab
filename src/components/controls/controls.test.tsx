@@ -19,6 +19,39 @@ describe('physical controls — semantics & keyboard', () => {
     expect(onChange).toHaveBeenCalledWith(0)
   })
 
+  it('Inflation retains fine steps, endpoints and externally controlled values', () => {
+    const onChange = vi.fn()
+    const { rerender } = render(
+      <RotaryKnob variant="inflation" label="AIR PRESSURE" value={0.7} onChange={onChange} />,
+    )
+    const slider = screen.getByRole('slider', { name: /air pressure/i })
+    fireEvent.keyDown(slider, { key: 'ArrowDown', shiftKey: true })
+    expect(onChange).toHaveBeenLastCalledWith(0.69)
+    fireEvent.keyDown(slider, { key: 'End' })
+    expect(onChange).toHaveBeenLastCalledWith(1)
+    fireEvent.keyDown(slider, { key: 'Home' })
+    expect(onChange).toHaveBeenLastCalledWith(0)
+    rerender(
+      <RotaryKnob variant="inflation" label="AIR PRESSURE" value={0.2} onChange={onChange} />,
+    )
+    expect(slider).toHaveAttribute('aria-valuetext', '20%')
+    expect(slider.style.getPropertyValue('--knob-angle')).toBe('-81deg')
+    rerender(
+      <RotaryKnob
+        variant="inflation"
+        label="AIR PRESSURE"
+        value={0.2}
+        onChange={onChange}
+        disabled
+      />,
+    )
+    expect(slider).toHaveAttribute('aria-disabled', 'true')
+    expect(slider).toHaveAttribute('tabindex', '-1')
+    onChange.mockClear()
+    fireEvent.keyDown(slider, { key: 'ArrowUp' })
+    expect(onChange).not.toHaveBeenCalled()
+  })
+
   it('ToggleSwitch exposes switch semantics and toggles', () => {
     const onChange = vi.fn()
     render(<ToggleSwitch label="LIVE PREVIEW" checked={false} onChange={onChange} />)

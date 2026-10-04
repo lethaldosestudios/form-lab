@@ -93,7 +93,7 @@ export function InflationControls({
     <Section code={SECTIONS.inflation.code} title={SECTIONS.inflation.title}>
       <div className="knob-group">
         <RotaryKnob
-          variant="primary"
+          variant="inflation"
           label={INFLATION_CONTROLS.puffiness.label}
           value={params.puffiness}
           onChange={(v) => update('puffiness', v)}

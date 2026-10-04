@@ -1,4 +1,10 @@
-import { useCallback, useRef, type CSSProperties, type KeyboardEvent, type PointerEvent } from 'react'
+import {
+  useCallback,
+  useRef,
+  type CSSProperties,
+  type KeyboardEvent,
+  type PointerEvent,
+} from 'react'
 
 import { clamp01 } from '../../lib/math'
 
@@ -13,7 +19,23 @@ const SCALE_MARKS = [0, 25, 50, 75, 100].map((value) => ({
 }))
 
 /** Physical identity — the knob's function decides its form (plan §4). */
-export type KnobVariant = 'primary' | 'machined' | 'ribbed'
+export type KnobVariant = 'primary' | 'machined' | 'ribbed' | 'inflation'
+
+const INFLATION_MARKS = Array.from({ length: 21 }, (_, index) => {
+  const value = index * 5
+  const angle = ((MIN_ANGLE + (value / 100) * (MAX_ANGLE - MIN_ANGLE)) * Math.PI) / 180
+  const point = (radius: number) => ({
+    x: 91 + Math.sin(angle) * radius,
+    y: 91 - Math.cos(angle) * radius,
+  })
+  return {
+    value,
+    major: index % 4 === 0,
+    inner: point(index % 4 === 0 ? 67 : 71),
+    outer: point(77),
+    label: point(86),
+  }
+})
 
 interface RotaryKnobProps {
   label: string
@@ -118,6 +140,33 @@ export function RotaryKnob({
         onPointerCancel={handlePointerUp}
         onKeyDown={handleKeyDown}
       >
+        {variant === 'inflation' && (
+          <svg
+            className="knob__calibration"
+            viewBox="0 0 182 182"
+            aria-hidden="true"
+            focusable="false"
+          >
+            {INFLATION_MARKS.map((mark) => (
+              <g key={mark.value}>
+                <line
+                  x1={mark.inner.x}
+                  y1={mark.inner.y}
+                  x2={mark.outer.x}
+                  y2={mark.outer.y}
+                  className={
+                    mark.major ? 'knob__graduation knob__graduation--major' : 'knob__graduation'
+                  }
+                />
+                {mark.major && (
+                  <text x={mark.label.x} y={mark.label.y}>
+                    {mark.value}
+                  </text>
+                )}
+              </g>
+            ))}
+          </svg>
+        )}
         <span className="knob__mount" aria-hidden="true" />
         <span className="knob__ticks" aria-hidden="true" />
 
