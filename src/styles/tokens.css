@@ -32,9 +32,9 @@
   --label-engraved: #555a62;
 
   /* ---- Indicator semantics (#22) ---- */
-  --indicator-green: #4ade80; /* ready / success */
-  --indicator-amber: #f5a524; /* processing / warning */
-  --indicator-red: #f0503c; /* error */
+  --indicator-green: #7dd40a; /* ready / success */
+  --indicator-amber: #f59a09; /* processing / warning */
+  --indicator-red: #f31b10; /* error */
   --indicator-neutral: #cfe6ff; /* neutral system state (white/blue) */
   --indicator-off: #1a1d22; /* dark glass bulb */
 
