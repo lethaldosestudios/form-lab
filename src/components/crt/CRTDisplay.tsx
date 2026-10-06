@@ -45,9 +45,7 @@ export function CRTDisplay({
           <Screw className="crt__bezel-screw crt__bezel-screw--br" />
 
           <div className="crt__screen">
-            <div className="crt__content" role="status" aria-live="polite" aria-atomic="false">
-              {children}
-            </div>
+            <div className="crt__content">{children}</div>
             <CRTGlass />
           </div>
         </div>

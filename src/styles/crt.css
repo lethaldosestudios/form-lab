@@ -32,7 +32,9 @@
   padding: clamp(16px, 2.2vw, 26px) clamp(14px, 2vw, 22px);
   border-radius: 16px 16px 12px 12px;
   background: var(--mat-crt-housing-bg);
-  box-shadow: var(--mat-crt-housing-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  box-shadow:
+    var(--mat-crt-housing-shadow),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
   filter: drop-shadow(0 24px 24px rgba(0, 0, 0, 0.7));
 }
 
@@ -136,8 +138,7 @@
   aspect-ratio: 4 / 3;
   border-radius: 20px / 26px;
   overflow: hidden;
-  background:
-    radial-gradient(120% 120% at 50% 40%, #06110d 0%, #030806 45%, #010201 100%);
+  background: radial-gradient(120% 120% at 50% 40%, #06110d 0%, #030806 45%, #010201 100%);
   box-shadow:
     inset 0 0 40px rgba(0, 0, 0, 0.9),
     inset 0 0 0 1px rgba(0, 0, 0, 0.9);
@@ -187,7 +188,11 @@
 .crt__glow {
   position: absolute;
   inset: 0;
-  background: radial-gradient(80% 70% at 50% 42%, var(--crt-tint-dim, var(--display-glow-dim)), transparent 68%);
+  background: radial-gradient(
+    80% 70% at 50% 42%,
+    var(--crt-tint-dim, var(--display-glow-dim)),
+    transparent 68%
+  );
   opacity: 0.55;
 }
 
@@ -449,4 +454,183 @@
   .crt-screen__idle {
     animation: none;
   }
+}
+
+/* Operating display: object/reference occupies its own space above readouts. */
+.crt__content:has(.crt-screen--workspace) {
+  padding: 16px;
+}
+.crt-screen--workspace {
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.crt-workspace__view {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  overflow: hidden;
+}
+.crt-workspace__view > div:not(.crt-workspace__idle) {
+  height: 100%;
+}
+.crt-workspace__idle {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+}
+.crt-workspace__idle p {
+  margin: 0;
+  font-size: 12px;
+}
+.crt-workspace__idle .crt-screen__head {
+  font-size: 24px;
+}
+.crt-reference {
+  width: 100%;
+  height: calc(100% - 18px);
+  object-fit: contain;
+}
+.crt-workspace__phase {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  font-size: 10px;
+  line-height: 14px;
+  background: #030806cc;
+}
+.crt-feedback {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 11px;
+  line-height: 15px;
+  letter-spacing: 0.025em;
+  border-top: 1px solid #7fe3c444;
+  padding-top: 8px;
+}
+.crt-feedback__material {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+}
+.crt-feedback__color {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.crt-feedback__swatch {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  border-radius: 2px;
+}
+.crt-feedback__detail {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.crt-feedback__detail strong {
+  font-weight: 500;
+}
+.crt-feedback small {
+  font-size: 10px;
+}
+.crt-color-editor {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  padding: 16px;
+  background: #030b08;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 12px;
+  font-size: 12px;
+}
+.crt-color-editor input {
+  width: 100%;
+  padding: 8px;
+  font: 16px var(--font-display);
+  color: var(--display-glow);
+  background: #071911;
+  border: 1px solid var(--display-glow);
+}
+.crt-color-editor p {
+  margin: 0;
+  line-height: 18px;
+}
+.crt-color-editor div {
+  display: flex;
+  gap: 12px;
+}
+.crt-color-editor button {
+  min-height: 40px;
+  padding: 8px;
+  border: 1px solid var(--display-glow);
+  background: #071911;
+  color: var(--display-glow);
+  font: inherit;
+}
+.crt-color-editor :focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+@media (max-width: 760px) {
+  .crt__housing {
+    padding: 12px;
+    filter: none;
+  }
+  .crt__bezel {
+    padding: 16px;
+  }
+  .crt__content:has(.crt-screen--workspace) {
+    padding: 10px;
+  }
+  .crt-feedback {
+    font-size: 10px;
+    line-height: 13px;
+    gap: 3px;
+    padding-top: 5px;
+  }
+  .crt-feedback__material {
+    font-size: 11px;
+  }
+  .crt-workspace__idle .crt-screen__head {
+    font-size: 18px;
+  }
+  .crt-workspace__phase {
+    font-size: 9px;
+  }
+  .crt-color-editor {
+    padding: 10px;
+    gap: 6px;
+    font-size: 10px;
+  }
+}
+@media (max-width: 760px) {
+  .crt-color-editor {
+    padding: 12px;
+    gap: 4px;
+    overflow: auto;
+  }
+  .crt-color-editor p {
+    font-size: 9px;
+    line-height: 14px;
+  }
+  .crt-color-editor input {
+    padding: 4px;
+  }
+}
+.crt-complete-hint {
+  margin: 0;
+  font-size: 9px;
+  line-height: 12px;
 }

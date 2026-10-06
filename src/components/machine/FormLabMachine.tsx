@@ -1,12 +1,4 @@
-import {
-  lazy,
-  Suspense,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  type CSSProperties,
-} from 'react'
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, type CSSProperties } from 'react'
 
 import { PushButton } from '../controls/PushButton'
 import { ToggleSwitch } from '../controls/ToggleSwitch'
@@ -20,6 +12,8 @@ import { MachineHeader } from './MachineHeader'
 import { MachineLabel } from './MachineLabel'
 import { Cavity } from './Cavity'
 import { FabricationChamber } from './FabricationChamber'
+import { ReferenceFilm } from '../reference/ReferenceFilm'
+import { controlsLocked } from '../../state/controlFeedback'
 import { StatusLights } from './StatusLights'
 import { INFLATION_CONTROLS } from '../../data/machineConfig'
 import { extractSilhouetteFromImage } from '../../engine/silhouette'
@@ -44,7 +38,9 @@ export function FormLabMachine() {
   const updateParam = useMachineStore((s) => s.updateParam)
   const applyMaterial = useMachineStore((s) => s.applyMaterial)
   const referenceUrl = useMachineStore((s) => s.referenceUrl)
-  const shapeCode = useMachineStore((s) => s.shapeCode)
+  const referenceName = useMachineStore((s) => s.referenceName)
+  const setColorEditing = useMachineStore((s) => s.setColorEditing)
+  const setReferenceProblem = useMachineStore((s) => s.setReferenceProblem)
   const setReference = useMachineStore((s) => s.setReference)
   const clearReference = useMachineStore((s) => s.clearReference)
   const setContour = useMachineStore((s) => s.setContour)
@@ -62,28 +58,49 @@ export function FormLabMachine() {
   const { retrieve } = useRetrieval()
   useLivePreview()
 
+  const referenceToken = useRef(0)
   const objectUrlRef = useRef<string | null>(null)
   const dispenserRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     return () => {
+      referenceToken.current += 1
       if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current)
     }
   }, [])
 
   const handleReferenceFile = useCallback(
     async (file: File) => {
-      if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current)
-      const url = URL.createObjectURL(file)
-      objectUrlRef.current = url
-      setReference(url, file.name.replace(/\.[^.]+$/, '').toUpperCase())
-      const extracted = await extractSilhouetteFromImage(file)
-      if (extracted) setContour(extracted.contour, 'REFERENCE', extracted.holes)
+      if (controlsLocked(useMachineStore.getState().machine.status)) return
+      const token = ++referenceToken.current
+      setReferenceProblem('READING REFERENCE…')
+      try {
+        const extracted = await extractSilhouetteFromImage(file)
+        if (
+          token !== referenceToken.current ||
+          controlsLocked(useMachineStore.getState().machine.status)
+        )
+          return
+        if (!extracted) {
+          setReferenceProblem('REFERENCE COULD NOT BE READ · TRY ANOTHER IMAGE')
+          return
+        }
+        if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current)
+        const url = URL.createObjectURL(file)
+        objectUrlRef.current = url
+        setReference(url, file.name.replace(/\.[^.]+$/, '').toUpperCase())
+        setContour(extracted.contour, 'REFERENCE', extracted.holes)
+      } catch {
+        if (token === referenceToken.current)
+          setReferenceProblem('REFERENCE COULD NOT BE READ · TRY ANOTHER IMAGE')
+      }
     },
-    [setContour, setReference],
+    [setContour, setReference, setReferenceProblem],
   )
 
   const handleReferenceReset = useCallback(() => {
+    if (controlsLocked(useMachineStore.getState().machine.status)) return
+    referenceToken.current += 1
     if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current)
     objectUrlRef.current = null
     clearReference()
@@ -99,7 +116,12 @@ export function FormLabMachine() {
   }, [])
 
   const handleView = useCallback(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+    window.scrollTo({
+      top: 0,
+      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        ? 'instant'
+        : 'smooth',
+    })
   }, [])
 
   // Advance to DISPENSER_READY when the lower section scrolls into view (§21).
@@ -125,12 +147,13 @@ export function FormLabMachine() {
     }
   }, [autoGenerate, machine.status, materialize])
 
+  const locked = controlsLocked(machine.status)
+
   const appearance = useMemo(() => appearanceForParams(params), [params])
   const indicatorStates = useMemo(() => indicatorStatesFor(machine.status), [machine.status])
 
   const showObject =
-    object !== null &&
-    (machine.status === 'OBJECT_READY' || machine.status === 'DISPENSER_READY')
+    object !== null && (machine.status === 'OBJECT_READY' || machine.status === 'DISPENSER_READY')
 
   const objectNode = showObject ? (
     <Suspense fallback={<span className="crt-screen__object-placeholder" />}>
@@ -172,20 +195,35 @@ export function FormLabMachine() {
         <MachineHeader />
 
         <div className="machine__deck">
-          <ControlPanel
-            params={params}
-            update={updateParam}
-            onMaterial={applyMaterial}
-            referenceUrl={referenceUrl}
-            shapeCode={shapeCode}
-            onReferenceFile={handleReferenceFile}
-            onReferenceReset={handleReferenceReset}
-          />
+          <div className="machine__controls">
+            <ControlPanel
+              params={params}
+              update={updateParam}
+              onMaterial={applyMaterial}
+              onColorEdit={() => setColorEditing(true)}
+              disabled={locked}
+            />
+            <InflationControls params={params} update={updateParam} disabled={locked} />
+          </div>
 
           <div className="machine__center">
             <CRTDisplay>
-              <CRTState machine={machine} params={params} objectNode={objectNode} previewNode={previewNode} />
+              <CRTState
+                machine={machine}
+                params={params}
+                objectNode={objectNode}
+                previewNode={previewNode}
+                referenceUrl={referenceUrl}
+                referenceName={referenceName}
+              />
             </CRTDisplay>
+
+            <ReferenceFilm
+              previewUrl={referenceUrl}
+              onFile={handleReferenceFile}
+              onReset={handleReferenceReset}
+              disabled={locked}
+            />
 
             <div className="machine__materialize">
               <Cavity className="materialize" screws>
@@ -208,16 +246,15 @@ export function FormLabMachine() {
                 )}
               </Cavity>
             </div>
+          </div>
 
+          <aside className="machine__status">
             <Cavity className="status-panel" screws>
               <MachineLabel heading tone="primary" code="ST-06" as="h2">
                 SYSTEM STATUS
               </MachineLabel>
               <StatusLights states={indicatorStates} layout="row" />
             </Cavity>
-          </div>
-
-          <aside className="machine__status">
             <Cavity className="gauge-panel" screws>
               <AnalogGauge
                 label={INFLATION_CONTROLS.puffiness.label}
@@ -227,31 +264,37 @@ export function FormLabMachine() {
               />
             </Cavity>
 
-            <InflationControls params={params} update={updateParam} />
-
             <Cavity className="process-panel" screws>
               <MachineLabel heading tone="primary" code="PR-07" as="h2">
                 PROCESSING
               </MachineLabel>
               <div className="toggle-stack">
                 <ToggleSwitch
+                  disabled={locked}
                   label="LIVE PREVIEW"
                   checked={livePreview}
                   onChange={setLivePreview}
                   hint="Auto-preview after edits settle"
                 />
                 <ToggleSwitch
+                  disabled={locked}
                   label="AUTO GENERATE"
                   checked={autoGenerate}
                   onChange={setAutoGenerate}
                 />
               </div>
-              <PushButton variant="ghost" onClick={resetUnit}>
+              <PushButton
+                variant="ghost"
+                onClick={() => {
+                  referenceToken.current += 1
+                  resetUnit()
+                }}
+              >
                 RESET UNIT
               </PushButton>
             </Cavity>
 
-            <SceneControls params={params} update={updateParam} />
+            <SceneControls params={params} update={updateParam} disabled={locked} />
           </aside>
         </div>
 

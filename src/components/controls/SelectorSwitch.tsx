@@ -9,6 +9,7 @@ interface SelectorSwitchProps<T extends string> {
   value: T
   onChange: (value: T) => void
   disabled?: boolean
+  variant?: 'default' | 'frosted'
 }
 
 /**
@@ -21,6 +22,7 @@ export function SelectorSwitch<T extends string>({
   value,
   onChange,
   disabled = false,
+  variant = 'default',
 }: SelectorSwitchProps<T>) {
   const activeIndex = Math.max(
     0,
@@ -28,7 +30,7 @@ export function SelectorSwitch<T extends string>({
   )
 
   return (
-    <div className="selector" data-disabled={disabled || undefined}>
+    <div className={`selector selector--${variant}`} data-disabled={disabled || undefined}>
       <span className="selector__label">{label}</span>
       <div className="selector__rail" role="radiogroup" aria-label={label}>
         <span
@@ -45,20 +47,39 @@ export function SelectorSwitch<T extends string>({
           ))}
         </span>
         <div className="selector__options">
-          {options.map((option) => {
+          {options.map((option, index) => {
             const selected = option.value === value
             return (
               <button
                 key={option.value}
                 type="button"
                 role="radio"
+                tabIndex={selected ? 0 : -1}
                 aria-checked={selected}
+                aria-label={option.label}
                 disabled={disabled}
                 className="selector__option"
                 data-selected={selected || undefined}
                 onClick={() => onChange(option.value)}
+                onKeyDown={(event) => {
+                  let next = index
+                  if (event.key === 'ArrowRight' || event.key === 'ArrowDown')
+                    next = (index + 1) % options.length
+                  else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp')
+                    next = (index + options.length - 1) % options.length
+                  else if (event.key === 'Home') next = 0
+                  else if (event.key === 'End') next = options.length - 1
+                  else return
+                  event.preventDefault()
+                  onChange(options[next].value)
+                  const buttons =
+                    event.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>(
+                      '[role="radio"]',
+                    )
+                  buttons?.[next]?.focus()
+                }}
               >
-                {option.label}
+                {variant === 'frosted' && option.value === 'translucent' ? 'TRANSL.' : option.label}
               </button>
             )
           })}

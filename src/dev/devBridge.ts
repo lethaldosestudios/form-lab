@@ -22,6 +22,7 @@ export interface FormLabDevApi {
   setParams: (partial: Partial<MachineParams>) => void
   /** Generate an object and install it (full = final render, preview = low-res). */
   makeObject: (kind?: 'preview' | 'full') => Promise<string>
+  snapshot: () => { status: MachineStatus; previewStatus: string; holeCount: number }
   clear: () => void
 }
 
@@ -48,6 +49,14 @@ export function installDevBridge(): void {
       const object = await engine.generate(toGenerationParams(params, contour, holes))
       useMachineStore.setState(kind === 'preview' ? { previewObject: object } : { object })
       return object.id
+    },
+    snapshot() {
+      const state = useMachineStore.getState()
+      return {
+        status: state.machine.status,
+        previewStatus: state.previewStatus,
+        holeCount: state.holes.length,
+      }
     },
     clear() {
       useMachineStore.setState({ object: null, previewObject: null })

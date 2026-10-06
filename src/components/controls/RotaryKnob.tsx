@@ -44,6 +44,7 @@ interface RotaryKnobProps {
   onChange: (value: number) => void
   variant?: KnobVariant
   disabled?: boolean
+  showValue?: boolean
 }
 
 /**
@@ -62,6 +63,7 @@ export function RotaryKnob({
   onChange,
   variant = 'primary',
   disabled = false,
+  showValue = true,
 }: RotaryKnobProps) {
   const drag = useRef<{ startY: number; startValue: number } | null>(null)
   const dialRef = useRef<HTMLDivElement>(null)
@@ -198,9 +200,12 @@ export function RotaryKnob({
           </span>
         </span>
       </div>
-      <span className="knob__value" aria-hidden="true">
-        {pct}%
-      </span>
+      <span className="knob__legend">{label}</span>
+      {showValue && (
+        <span className="knob__value" aria-hidden="true">
+          {pct}%
+        </span>
+      )}
     </div>
   )
 }

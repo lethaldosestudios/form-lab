@@ -11,8 +11,8 @@ skin. Every control is a manufactured part, every readout is instrumentation, an
 object is the only real colour on screen. The test for any new element is simple — *does this
 make the user feel like they are operating a physical object?*
 
-> **Status:** private, work in progress. Latest milestone: **v4 — Reference Pass**
-> (reference film no longer crops; interior cutouts carry through to the object).
+> **Status:** private, work in progress. Latest milestone: **v6 — Version 03 operating console, stage 1**
+> (built-in material/color browsing, CRT feedback and persistent enlarged display).
 
 ## Running it
 
@@ -29,6 +29,16 @@ Requires **Node 24.21.0** — `nvm use` picks it up from `.nvmrc` (see [Gotchas]
 | `npm run shots` | Playwright capture → `screenshots/` (needs `npm run dev` running) |
 
 A change is only done when **`npm run build`, `npm run lint` and `npm test` all pass.**
+
+## Operating the console
+
+Use the vertical MATERIAL PRESETS arrows to select built-in recipes and the separate COLORS
+arrows to select a palette color. Selection names, color values and parameter feedback appear
+on the CRT. EDIT opens a custom hex-color editor there; Enter applies and Escape cancels.
+INSERT loads a silhouette; RESET clears it. The same CRT stays visible while operating the deck.
+
+See [Version 03 code stage 1](FORM-LAB-Version-03-Code-Stage-1.md) for completed scope,
+remaining Paper design work and browser verification (`node tools/verify-console.mjs`).
 
 ## How it works
 

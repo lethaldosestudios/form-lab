@@ -50,20 +50,25 @@ export function useFabrication(engine: GenerationEngine = proceduralEngine) {
     if (!canMaterializeNow(store.machine)) return
 
     running.current = true
+    const revision = store.generationRevision
+    const current = () => useMachineStore.getState().generationRevision === revision
     const started = now()
     const params = toGenerationParams(store.params, store.contour, store.holes)
 
-    store.dispatch({ type: 'MATERIALIZE' })
-    await wait(GEOMETRY_BEAT_MS)
-    store.dispatch({ type: 'RENDER_START' })
-
     try {
+      store.dispatch({ type: 'MATERIALIZE' })
+      await wait(GEOMETRY_BEAT_MS)
+      if (!current()) return
+      store.dispatch({ type: 'RENDER_START' })
+
       const object = await engine.generate(params)
       const elapsed = now() - started
       if (elapsed < MIN_FABRICATION_MS) await wait(MIN_FABRICATION_MS - elapsed)
+      if (!current()) return
       store.setObject(object)
       store.dispatch({ type: 'GENERATION_COMPLETE', objectId: object.id })
     } catch (error) {
+      if (!current()) return
       store.dispatch({ type: 'GENERATION_FAILED', message: (error as Error).message })
     } finally {
       running.current = false

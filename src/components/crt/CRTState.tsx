@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react'
 
-import { MACHINE } from '../../data/machineConfig'
-import { MATERIAL_BY_ID } from '../../data/materialPresets'
+import { CRTFeedback } from './CRTFeedback'
 import type { MachineState } from '../../state/machineState'
 import type { MachineParams } from '../../state/params'
 
@@ -12,32 +11,8 @@ interface CRTStateProps {
   objectNode?: ReactNode
   /** The live-preview object shown while configuring (handoff §14). */
   previewNode?: ReactNode
-}
-
-const pct = (n: number) => `${Math.round(n * 100)}%`
-
-function Readout({ params }: { params: MachineParams }) {
-  const preset = MATERIAL_BY_ID[params.material]
-  return (
-    <dl className="crt-readout">
-      <div className="crt-readout__item">
-        <dt>MATERIAL</dt>
-        <dd>{preset.name.toUpperCase()}</dd>
-      </div>
-      <div className="crt-readout__item">
-        <dt>PUFFINESS</dt>
-        <dd>{pct(params.puffiness)}</dd>
-      </div>
-      <div className="crt-readout__item">
-        <dt>GLOSS</dt>
-        <dd>{pct(params.gloss)}</dd>
-      </div>
-      <div className="crt-readout__item">
-        <dt>DEFORMATION</dt>
-        <dd>{pct(params.asymmetry)}</dd>
-      </div>
-    </dl>
-  )
+  referenceUrl?: string | null
+  referenceName?: string | null
 }
 
 const SEQUENCE = ['GEOMETRY', 'INFLATING', 'MATERIALIZING', 'RENDERING'] as const
@@ -47,66 +22,55 @@ const SEQUENCE = ['GEOMETRY', 'INFLATING', 'MATERIALIZING', 'RENDERING'] as cons
  * The CRT is the machine's central communication surface — every state speaks
  * through it rather than through generic UI chrome.
  */
-export function CRTState({ machine, params, objectNode, previewNode }: CRTStateProps) {
+export function CRTState({
+  machine,
+  objectNode,
+  previewNode,
+  referenceUrl,
+  referenceName,
+}: CRTStateProps) {
   const { status } = machine
 
   switch (status) {
     case 'IDLE':
-      return (
-        <div className="crt-screen crt-screen--idle">
-          <p className="crt-screen__brand">{MACHINE.brand}</p>
-          <p className="crt-screen__sys">{MACHINE.unitName}</p>
-          <p className="crt-screen__idle">AWAITING REFERENCE GEOMETRY</p>
-          <p className="crt-screen__hint">DROP A SILHOUETTE TO BEGIN</p>
-          <p className="crt-screen__status">
-            SYSTEM: <span className="crt-screen__ready">READY</span>
-          </p>
-        </div>
-      )
-
     case 'REFERENCE_LOADED':
-      return (
-        <div className="crt-screen">
-          <p className="crt-screen__head">REFERENCE LOCKED</p>
-          <p className="crt-screen__line">GEOMETRY DETECTED</p>
-          <p className="crt-screen__line">BOUNDARY COMPLEXITY: LOW</p>
-          <p className="crt-screen__status">READY TO INFLATE</p>
-        </div>
-      )
-
     case 'CONFIGURING':
     case 'PREVIEWING':
-    case 'READY': {
-      const text = (
-        <>
-          <p className="crt-screen__head">
-            {status === 'READY' ? 'PARAMETERS SET' : 'PARAMETER REVIEW'}
-          </p>
-          <Readout params={params} />
-          {status === 'PREVIEWING' && <p className="crt-screen__status">PREVIEWING…</p>}
-          {status === 'READY' && (
-            <p className="crt-screen__status">
-              READY TO <span className="crt-screen__ready">MATERIALIZE</span>
-            </p>
-          )}
-        </>
-      )
-
-      if (previewNode) {
-        return (
-          <div className="crt-screen crt-screen--object">
-            <div className="crt-screen__object">{previewNode}</div>
-            <div className="crt-screen__overlay">{text}</div>
+    case 'READY':
+      return (
+        <div className="crt-screen crt-screen--workspace">
+          <div className="crt-workspace__view">
+            {previewNode ??
+              (referenceUrl ? (
+                <img
+                  className="crt-reference"
+                  src={referenceUrl}
+                  alt={`Reference silhouette${referenceName ? `: ${referenceName}` : ''}`}
+                />
+              ) : (
+                <div className="crt-workspace__idle">
+                  <p className="crt-screen__head">FORM//LAB</p>
+                  <p>INSERT REFERENCE</p>
+                </div>
+              ))}
+            <span className="crt-workspace__phase" role="status">
+              {status === 'READY'
+                ? 'READY TO MATERIALIZE'
+                : status === 'REFERENCE_LOADED'
+                  ? 'REFERENCE LOCKED'
+                  : status === 'IDLE'
+                    ? 'AWAITING REFERENCE GEOMETRY'
+                    : 'PARAMETER REVIEW'}
+            </span>
           </div>
-        )
-      }
-      return <div className="crt-screen">{text}</div>
-    }
+          <CRTFeedback />
+        </div>
+      )
 
     case 'MATERIALIZING':
     case 'RENDERING':
       return (
-        <div className="crt-screen crt-screen--busy">
+        <div className="crt-screen crt-screen--busy" role="status">
           <p className="crt-screen__head">FABRICATION IN PROGRESS</p>
           <ul className="crt-sequence">
             {SEQUENCE.map((step) => (
@@ -115,29 +79,31 @@ export function CRTState({ machine, params, objectNode, previewNode }: CRTStateP
               </li>
             ))}
           </ul>
-          <p className="crt-screen__status">{status === 'RENDERING' ? 'RENDERING…' : 'INFLATING…'}</p>
+          <p className="crt-screen__status">
+            {status === 'RENDERING' ? 'RENDERING…' : 'INFLATING…'}
+          </p>
         </div>
       )
 
     case 'OBJECT_READY':
     case 'DISPENSER_READY':
       return (
-        <div className="crt-screen crt-screen--object">
-          <div className="crt-screen__object">
+        <div className="crt-screen crt-screen--workspace">
+          <div className="crt-workspace__view">
             {objectNode ?? <span className="crt-screen__object-placeholder" />}
             <span className="crt-reveal" aria-hidden="true" />
+            <span className="crt-workspace__phase" role="status">
+              OBJECT COMPLETE
+            </span>
           </div>
-          <div className="crt-screen__overlay">
-            <p className="crt-screen__head">OBJECT COMPLETE</p>
-            <Readout params={params} />
-            <p className="crt-screen__status">↓ SCROLL TO DISPENSE ↓</p>
-          </div>
+          <CRTFeedback />
+          <p className="crt-complete-hint">↓ SCROLL TO DISPENSE ↓</p>
         </div>
       )
 
     case 'RETRIEVING':
       return (
-        <div className="crt-screen crt-screen--busy">
+        <div className="crt-screen crt-screen--busy" role="status">
           <p className="crt-screen__head">DISPENSING</p>
           <p className="crt-screen__line">OBJECT IN TRANSIT</p>
           <p className="crt-screen__status">PLEASE WAIT…</p>
@@ -146,16 +112,19 @@ export function CRTState({ machine, params, objectNode, previewNode }: CRTStateP
 
     case 'RETRIEVED':
       return (
-        <div className="crt-screen">
-          <p className="crt-screen__head">OBJECT RETRIEVED</p>
-          <p className="crt-screen__line">DISPENSER TRAY — BELOW</p>
-          <p className="crt-screen__status">EXPORT OR MAKE ANOTHER</p>
+        <div className="crt-screen crt-screen--workspace">
+          <div className="crt-workspace__idle" role="status">
+            <p className="crt-screen__head">OBJECT RETRIEVED</p>
+            <p>DISPENSER TRAY — BELOW</p>
+            <p>EXPORT OR MAKE ANOTHER</p>
+          </div>
+          <CRTFeedback />
         </div>
       )
 
     case 'ERROR':
       return (
-        <div className="crt-screen crt-screen--error">
+        <div className="crt-screen crt-screen--error" role="alert">
           <p className="crt-screen__head crt-screen__head--fault">SYSTEM FAULT</p>
           <p className="crt-screen__line">{machine.error ?? 'UNKNOWN FAULT'}</p>
           <p className="crt-screen__status">PRESS RESET TO RECOVER</p>

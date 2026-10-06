@@ -1,3 +1,8 @@
+> October 6 implementation update: [Version 03 code stage 1](FORM-LAB-Version-03-Code-Stage-1.md)
+> supersedes older cartridge, color-history and separate reference-viewport instructions below.
+> Controls use fixed legends; dynamic feedback belongs on the CRT. Deferred Paper work is
+> explicitly listed in that record; this handoff retains the original specification for context.
+
 # FORM//LAB --- AI Build Handoff Specification
 
 ## Project Identity

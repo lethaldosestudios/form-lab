@@ -6,7 +6,6 @@ import { MechanicalSlider } from '../controls/MechanicalSlider'
 import { RotaryKnob } from '../controls/RotaryKnob'
 import { SelectorSwitch } from '../controls/SelectorSwitch'
 import { ToggleSwitch } from '../controls/ToggleSwitch'
-import { ReferenceFilm } from '../reference/ReferenceFilm'
 import { MachineLabel } from './MachineLabel'
 import { Cavity, SubPanel } from './Cavity'
 import { INFLATION_CONTROLS, SECTIONS } from '../../data/machineConfig'
@@ -19,13 +18,11 @@ import {
 } from '../../state/params'
 
 interface ControlPanelProps {
+  disabled?: boolean
   params: MachineParams
   update: <K extends keyof MachineParams>(key: K, value: MachineParams[K]) => void
   onMaterial: (id: MaterialKey) => void
-  referenceUrl: string | null
-  shapeCode: string
-  onReferenceFile: (file: File) => void
-  onReferenceReset: () => void
+  onColorEdit: () => void
 }
 
 function Section({ code, title, children }: { code: string; title: string; children: ReactNode }) {
@@ -42,57 +39,59 @@ function Section({ code, title, children }: { code: string; title: string; child
   )
 }
 
-/** The left-hand control panel of the upper deck (handoff §4, §6). */
+/** Compact material plate; all changing values are routed to the CRT. */
 export function ControlPanel({
   params,
   update,
   onMaterial,
-  referenceUrl,
-  shapeCode,
-  onReferenceFile,
-  onReferenceReset,
+  onColorEdit,
+  disabled = false,
 }: ControlPanelProps) {
   return (
-    <div className="control-panel">
-      <Section code={SECTIONS.reference.code} title={SECTIONS.reference.title}>
-        <ReferenceFilm
-          previewUrl={referenceUrl}
-          shapeCode={shapeCode}
-          onFile={onReferenceFile}
-          onReset={onReferenceReset}
+    <section className="material-plate" aria-label="Material control plate">
+      <MachineLabel heading tone="primary" code={SECTIONS.material.code} as="h2">
+        MATERIAL
+      </MachineLabel>
+      <div className="material-plate__browsers">
+        <MaterialSelector value={params.material} onChange={onMaterial} disabled={disabled} />
+        <MaterialColorPicker
+          value={params.color}
+          onChange={(hex) => update('color', hex)}
+          onEdit={onColorEdit}
+          disabled={disabled}
         />
-      </Section>
-
-      <Section code={SECTIONS.material.code} title={SECTIONS.material.title}>
-        <MaterialSelector value={params.material} onChange={onMaterial} />
-        <MaterialColorPicker value={params.color} onChange={(hex) => update('color', hex)} />
-        <SelectorSwitch
-          label="TRANSPARENCY"
-          options={TRANSPARENCY_OPTIONS}
-          value={params.transparency}
-          onChange={(v) => update('transparency', v)}
-        />
-      </Section>
-    </div>
+      </div>
+      <SelectorSwitch
+        label="TRANSPARENCY"
+        options={TRANSPARENCY_OPTIONS}
+        value={params.transparency}
+        onChange={(v) => update('transparency', v)}
+        disabled={disabled}
+        variant="frosted"
+      />
+    </section>
   )
 }
 
-/**
- * Inflation controls. Grouped with the AIR PRESSURE gauge in the instrumentation
- * column — the gauge is the physical readout of puffiness, so they belong
- * together (plan §7.1).
- */
+/** Inflation plate with the approved chrome pressure control and retained secondary controls. */
 export function InflationControls({
   params,
   update,
+  disabled = false,
 }: {
+  disabled?: boolean
   params: MachineParams
   update: <K extends keyof MachineParams>(key: K, value: MachineParams[K]) => void
 }) {
   return (
-    <Section code={SECTIONS.inflation.code} title={SECTIONS.inflation.title}>
+    <section className="inflation-plate" aria-label="Inflation controls">
+      <MachineLabel heading tone="primary" code={SECTIONS.inflation.code} as="h2">
+        INFLATION
+      </MachineLabel>
       <div className="knob-group">
         <RotaryKnob
+          showValue={false}
+          disabled={disabled}
           variant="inflation"
           label={INFLATION_CONTROLS.puffiness.label}
           value={params.puffiness}
@@ -101,12 +100,14 @@ export function InflationControls({
       </div>
       <div className="knob-group knob-group--pair">
         <RotaryKnob
+          disabled={disabled}
           variant="machined"
           label={INFLATION_CONTROLS.asymmetry.label}
           value={params.asymmetry}
           onChange={(v) => update('asymmetry', v)}
         />
         <RotaryKnob
+          disabled={disabled}
           variant="ribbed"
           label={INFLATION_CONTROLS.gloss.label}
           value={params.gloss}
@@ -114,13 +115,14 @@ export function InflationControls({
         />
       </div>
       <MechanicalSlider
+        disabled={disabled}
         label={INFLATION_CONTROLS.foldDensity.label}
         low={INFLATION_CONTROLS.foldDensity.low}
         high={INFLATION_CONTROLS.foldDensity.high}
         value={params.foldDensity}
         onChange={(v) => update('foldDensity', v)}
       />
-    </Section>
+    </section>
   )
 }
 
@@ -132,19 +134,23 @@ export function InflationControls({
 export function SceneControls({
   params,
   update,
+  disabled = false,
 }: {
+  disabled?: boolean
   params: MachineParams
   update: <K extends keyof MachineParams>(key: K, value: MachineParams[K]) => void
 }) {
   return (
     <Section code={SECTIONS.scene.code} title={SECTIONS.scene.title}>
       <SelectorSwitch
+        disabled={disabled}
         label="BACKGROUND"
         options={BACKGROUND_OPTIONS}
         value={params.background}
         onChange={(v) => update('background', v)}
       />
       <SelectorSwitch
+        disabled={disabled}
         label="LIGHTING"
         options={LIGHTING_OPTIONS}
         value={params.lighting}
@@ -152,12 +158,14 @@ export function SceneControls({
       />
       <div className="toggle-stack">
         <ToggleSwitch
+          disabled={disabled}
           label="CAST SHADOWS"
           checked={params.shadows}
           onChange={(v) => update('shadows', v)}
           hint="Ground shadow under the object"
         />
         <ToggleSwitch
+          disabled={disabled}
           label="INTERIOR CUTOUTS"
           checked={params.interiorCutouts}
           onChange={(v) => update('interiorCutouts', v)}
